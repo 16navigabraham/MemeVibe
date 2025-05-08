@@ -209,7 +209,7 @@ export default function CreateMeme() {
                     className="flex-1 flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition-colors"
                   >
                     <Download className="mr-2 h-5 w-5" />
-                    Download
+                    Cast meme
                   </button>
 
                   <button

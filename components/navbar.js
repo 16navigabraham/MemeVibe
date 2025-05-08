@@ -12,7 +12,7 @@ export function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center">
-            <span className="text-2xl font-bold text-purple-600">MemeMaker</span>
+            <span className="text-2xl font-bold text-purple-600">MemeCast</span>
           </Link>
 
           <div className="hidden md:flex space-x-8">
