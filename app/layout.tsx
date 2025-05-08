@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
-import '../styles/globals.css'
+import './frame/global.css';
+
 
 import { Providers } from "../app/providers";
 
