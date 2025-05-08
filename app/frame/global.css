@@ -1,4 +1,4 @@
-@tailwind base;
+/* @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -22,8 +22,8 @@ body {
 
 * {
   scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-}
+  /* -ms-overflow-style: none; IE and Edge */
+/* }
 
 *::-webkit-scrollbar {
   display: none;
@@ -33,4 +33,4 @@ body {
   :root {
     --radius: 0.5rem;
   }
-}
+} */ 
