@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-
-//import './frame/global.css';
-
-
 import { Providers } from "../app/providers";
+import { FrameInitializer } from "../components/FrameInitializer";
 
 export const metadata: Metadata = {
   title: "Meme Cast",
@@ -19,6 +16,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Providers>{children}</Providers>
+        <FrameInitializer />
       </body>
     </html>
   );
