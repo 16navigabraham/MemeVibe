@@ -6,7 +6,7 @@ import Image from "next/image"
 import { Navbar } from "@/components/navbar"
 import { fetchMemeTemplates, generateMeme } from "@/lib/api"
 import { Share2, Download, RefreshCw, Send } from "lucide-react" // Added Send
-import { handleCastMeme } from "@/app/handleCastMeme" // Import the handleCastMeme function
+import { handleCastMeme } from "./handleCastMeme" // Import the handleCastMeme function
 
 export default function CreateMeme() {
   const searchParams = useSearchParams()
