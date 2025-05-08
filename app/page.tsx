@@ -7,7 +7,9 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       <HeroSection />
+      <div className="mt-8">
       <MemeGallery />
+      </div>
       {/* { Welcome to the Meme Cast! } */}
     </main>
   );
