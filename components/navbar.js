@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
+import Logo from "../public/logo.png"
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -12,7 +13,8 @@ export function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center">
-            <span className="text-2xl font-bold text-purple-600">MemeCast</span>
+            <img src={Logo.src} alt="Logo" className="h-8 w-8 mr-2" />
+            <span className="text-xl font-bold text-purple-600">MemeCast</span>
           </Link>
 
           <div className="hidden md:flex space-x-8">
