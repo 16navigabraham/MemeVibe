@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
           action: {
             type: "post_redirect", // This tells Warpcast to create a post
             post: {
-              text: `I'm a ${resultType} crypto bro! Which one are you? 🤣`,
+              text: `meme casting is fun `,
               embeds: [{
                 url: "https://memetest-self.vercel.app/"
               }]
@@ -52,9 +52,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       frames: {
         version: 'vNext',
-        image: "https://your-domain.com/api/og-image",
+        image: "https://memetest-self.vercel.app//api/og-image",
         buttons: [
-          { label: "Find out now!" }
+          { label: "Cast your meme now!" }
         ]
       }
     });
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
 function determineResultType(fid: string) {
   // You can use the fid to generate a consistent result for each user
   // or randomize among your available options
-  const types = ["MANHATTAN", "BUSINESS", "TRADING", "HODLER", "DEFI"];
+  const types = ["", "", "", "", ""];
   const index = fid ? Number(fid) % types.length : Math.floor(Math.random() * types.length);
   return types[index];
 }

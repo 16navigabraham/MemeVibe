@@ -21,7 +21,7 @@ export const handleCastMeme = async (memeType: string) => {
     const imageUrl = `https://memetest-self.vercel.app/api/generate-image?type=${memeType}`;
     
     // Create the cast text
-    const castText = `I'm a ${memeType} crypto bro! Which one are you? 🤣`;
+    const castText = `cast meme directly ${memeType} `;
     
     // Use the Farcaster Cast API if available
     if (window.farcaster?.Cast) {
