@@ -5,10 +5,8 @@ import { useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { Navbar } from "@/components/navbar"
 import { fetchMemeTemplates, generateMeme } from "@/lib/api"
-import { Share2, Download, RefreshCw } from "lucide-react"
-import ShareButton from './sharebutton';
-
-
+import { Share2, Download, RefreshCw, Send } from "lucide-react" // Added Send
+import { handleCastMeme } from "@/app/handleCastMeme" // Import the handleCastMeme function
 
 export default function CreateMeme() {
   const searchParams = useSearchParams()
@@ -99,6 +97,14 @@ export default function CreateMeme() {
         .then(() => alert("Meme URL copied to clipboard!"))
         .catch(() => alert("Failed to copy URL"))
     }
+  }
+
+  // Create a wrapper function to handle the call to handleCastMeme
+  const onCastClick = () => {
+    if (!generatedMeme) return;
+    // Pass the meme type or use selectedTemplate.name as the meme type
+    const memeType = selectedTemplate ? selectedTemplate.name : "meme";
+    handleCastMeme(memeType);
   }
 
   return (
@@ -206,18 +212,14 @@ export default function CreateMeme() {
                   />
                 </div>
 
-                 {/* /* <div className="flex space-x-4">
-                  <button
-                    onClick={handleDownload}
-                    className="flex-1 flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition-colors"
-                  >
-                    <Download className="mr-2 h-5 w-5" />
-                    Cast meme
-                  </button>
-
-                  <ShareButton />
-
-                </div> */}
+                {/* Cast button using onCastClick function */}
+                <button
+                  onClick={onCastClick}
+                  className="flex-1 flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition-colors"
+                >
+                  <Send className="mr-2 h-5 w-5" />
+                  Cast to Warpcast
+                </button>
               </>
             ) : (
               <div className="flex flex-col items-center justify-center h-64 text-gray-500">
