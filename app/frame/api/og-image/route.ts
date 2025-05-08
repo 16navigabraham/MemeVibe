@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
     ctx.fillText('What your favourite meme?', 600, 200);
     
     ctx.font = '36px Arial';
-    ctx.fillText('Find out now!', 600, 300);
+    ctx.fillText('Cast your meme now!', 600, 300);
     
     // Convert canvas to buffer
     const buffer = canvas.toBuffer('image/jpeg');
