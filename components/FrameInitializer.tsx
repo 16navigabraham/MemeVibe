@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { sdk } from '@farcaster/frame-sdk';
 
+
 export function FrameInitializer() {
   useEffect(() => {
     // Add a small delay to ensure content is loaded

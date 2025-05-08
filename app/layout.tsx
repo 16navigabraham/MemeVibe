@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Providers } from "./providers";
 import { FrameInitializer } from "../components/FrameInitializer";
+import '../styles/globals.css';
+
 
 export const metadata: Metadata = {
   title: "Meme Cast",
