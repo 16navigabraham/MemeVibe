@@ -206,7 +206,7 @@ export default function CreateMeme() {
                   />
                 </div>
 
-                <div className="flex space-x-4">
+                 {/* /* <div className="flex space-x-4">
                   <button
                     onClick={handleDownload}
                     className="flex-1 flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition-colors"
@@ -217,7 +217,7 @@ export default function CreateMeme() {
 
                   <ShareButton />
 
-                </div>
+                </div> */}
               </>
             ) : (
               <div className="flex flex-col items-center justify-center h-64 text-gray-500">
