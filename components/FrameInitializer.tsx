@@ -5,10 +5,13 @@ import { sdk } from '@farcaster/frame-sdk';
 
 export function FrameInitializer() {
   useEffect(() => {
-    // Call ready when interface is loaded
-    sdk.actions.ready({ disableNativeGestures: true });
+    // Add a small delay to ensure content is loaded
+    const timer = setTimeout(() => {
+      sdk.actions.ready();
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, []);
   
-  // This component doesn't render anything
   return null;
 }
