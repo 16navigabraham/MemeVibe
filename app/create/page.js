@@ -6,7 +6,8 @@ import Image from "next/image"
 import { Navbar } from "@/components/navbar"
 import { fetchMemeTemplates, generateMeme } from "@/lib/api"
 import { Share2, Download, RefreshCw } from "lucide-react"
-import ShareButton from './create/sharebutton';
+import ShareButton from './sharebutton';
+
 
 
 export default function CreateMeme() {
