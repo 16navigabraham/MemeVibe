@@ -6,6 +6,8 @@ import Image from "next/image"
 import { Navbar } from "@/components/navbar"
 import { fetchMemeTemplates, generateMeme } from "@/lib/api"
 import { Share2, Download, RefreshCw } from "lucide-react"
+import ShareButton from './create/sharebutton';
+
 
 export default function CreateMeme() {
   const searchParams = useSearchParams()
@@ -212,13 +214,8 @@ export default function CreateMeme() {
                     Cast meme
                   </button>
 
-                  <button
-                    onClick={handleShare}
-                    className="flex-1 flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md transition-colors"
-                  >
-                    <Share2 className="mr-2 h-5 w-5" />
-                    Share
-                  </button>
+                  <ShareButton />
+
                 </div>
               </>
             ) : (
