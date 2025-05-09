@@ -7,14 +7,16 @@ import Head from 'next/head';
 /**
  * This component serves as a Farcaster Frame for the meme
  * It includes the necessary meta tags for Farcaster to render the frame properly
- */
-export default function MemeFrame() {
-  const searchParams = useSearchParams();
-  const imageUrl = searchParams.get('image');
-  const textContent = searchParams.get('text');
-  const [frameUrl, setFrameUrl] = useState('');
-  const [apiImageUrl, setApiImageUrl] = useState('');
-  const [origin, setOrigin] = useState('');
+//  */// Add these meta tags to your page head component
+<Head>
+  <title>Meme Vibe</title>
+  <meta property="og:title" content="Meme Vibe" />
+  <meta property="og:description" content="Cast meme directly to warpcast" />
+  <meta property="og:image" content="https://meme-vibe.vercel.app/og-image.png" />
+  <meta property="og:url" content="https://meme-vibe.vercel.app" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+</Head>
   
   useEffect(() => {
     // Set the current URL for frame validation
