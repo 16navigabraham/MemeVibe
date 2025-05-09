@@ -11,33 +11,36 @@ declare global {
   }
 }
 
-import { Send } from 'lucide-react';
-import { useState } from 'react';
-
-// Export the function to make it available to other components
-export const handleCastMeme = async (memeType: string) => {
+// Export a function that takes the meme URL
+export const handleCastMeme = async (memeUrl: string, memeText: string[]) => {
   try {
-    // Get the image URL for the generated meme
-    const imageUrl = `https://memetest-self.vercel.app/api/generate-image?type=${memeType}`;
+    // Format the meme text into a caption
+    const textCaption = memeText.filter(text => text.trim() !== "").join(" vs ");
     
-    // Create the cast text
-    const castText = `cast meme directly ${memeType} `;
+    // Create a descriptive caption for the cast
+    const castText = textCaption ? 
+      `${textCaption} - Made with MemeMaker` : 
+      "Check out this meme I made with MemeMaker!";
     
-    // Use the Farcaster Cast API if available
+    console.log("Casting meme with URL:", memeUrl);
+    console.log("Cast text:", castText);
+    
+    // Use the Farcaster Cast API if available in the browser
     if (window.farcaster?.Cast) {
       await window.farcaster.Cast.create({
         text: castText,
-        embeds: [{ url: imageUrl }]
+        embeds: [{ url: memeUrl }]
       });
     } else {
       // Fallback - open Warpcast with pre-filled cast
       const encodedText = encodeURIComponent(castText);
-      const encodedUrl = encodeURIComponent(imageUrl);
+      const encodedUrl = encodeURIComponent(memeUrl);
       window.open(`https://warpcast.com/~/compose?text=${encodedText}&embeds=${encodedUrl}`, '_blank');
     }
   } catch (error) {
     console.error('Error casting meme:', error);
-    // Fallback to download if casting fails
-    window.open(`https://memetest-self.vercel.app/api/generate-image?type=${memeType}`, '_blank');
+    // Fallback if casting fails - just open the image in a new tab
+    alert("Error casting to Warpcast. Opening image in new tab instead.");
+    window.open(memeUrl, '_blank');
   }
 };

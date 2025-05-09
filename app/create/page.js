@@ -1,15 +1,16 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import Image from "next/image"
 import { Navbar } from "@/components/navbar"
 import { fetchMemeTemplates, generateMeme } from "@/lib/api"
-import { Share2, Download, RefreshCw, Send } from "lucide-react" // Added Send
+import { RefreshCw, Send } from "lucide-react" // Removed Share2, Download
 import { handleCastMeme } from "./handleCastMeme" // Import the handleCastMeme function
 
 export default function CreateMeme() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const initialTemplateId = searchParams.get("template")
 
   const [templates, setTemplates] = useState([])
@@ -69,42 +70,17 @@ export default function CreateMeme() {
     }
   }
 
-  const handleDownload = () => {
-    if (!generatedMeme) return
+  // Removed handleDownload and handleShare functions
 
-    // Create a temporary link element
-    const link = document.createElement("a")
-    link.href = generatedMeme.url
-    link.download = `meme-${Date.now()}.jpg`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
-
-  const handleShare = () => {
-    if (!generatedMeme) return
-
-    if (navigator.share) {
-      navigator.share({
-        title: "Check out my meme!",
-        text: "I created this meme with MemeMaker",
-        url: generatedMeme.url,
-      })
-    } else {
-      // Fallback for browsers that don't support the Web Share API
-      navigator.clipboard
-        .writeText(generatedMeme.url)
-        .then(() => alert("Meme URL copied to clipboard!"))
-        .catch(() => alert("Failed to copy URL"))
-    }
-  }
-
-  // Create a wrapper function to handle the call to handleCastMeme
+  // Updated onCastClick function to pass the meme URL and text inputs
   const onCastClick = () => {
     if (!generatedMeme) return;
-    // Pass the meme type or use selectedTemplate.name as the meme type
-    const memeType = selectedTemplate ? selectedTemplate.name : "meme";
-    handleCastMeme(memeType);
+    
+    // Get the actual URL of the generated meme
+    const memeUrl = generatedMeme.url;
+    
+    // Pass both the URL and the text inputs to the handleCastMeme function
+    handleCastMeme(memeUrl, textInputs);
   }
 
   return (
@@ -212,10 +188,16 @@ export default function CreateMeme() {
                   />
                 </div>
 
-                {/* Cast button using onCastClick function */}
+                <button
+                  onClick={() => router.push('/')}
+                  className="w-full flex items-center justify-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md transition-colors"
+                >
+                  Back to Home
+                </button>
+
                 <button
                   onClick={onCastClick}
-                  className="flex-1 flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition-colors"
+                  className="w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition-colors mt-2"
                 >
                   <Send className="mr-2 h-5 w-5" />
                   Cast to Warpcast
