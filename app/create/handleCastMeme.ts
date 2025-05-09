@@ -19,7 +19,7 @@ export const handleCastMeme = async (memeUrl: string, memeText: string[]) => {
 
     // Create a descriptive caption for the cast
     const castText = textCaption ?
-      `${textCaption} - Made with MemeCast frame ` :
+      `${textCaption} - Made with with MemeVibe frame  ` :
       "Check out this meme I made with MemeVibe!";
 
     // Append a unique query parameter to prevent caching
