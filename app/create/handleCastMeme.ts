@@ -15,11 +15,11 @@ declare global {
 export const handleCastMeme = async (memeUrl: string, memeText: string[]) => {
   try {
     // Format the meme text into a caption
-    const textCaption = memeText.filter(text => text.trim() !== "").join(" vs ");
+    const textCaption = memeText.filter(text => text.trim() !== "").join("  ");
 
     // Create a descriptive caption for the cast
     const castText = textCaption ?
-      `${textCaption} - Made with with MemeVibe frame  ` :
+      `${textCaption} - Made with with MemeVibe frame((https://warpcast.com/miniapps/SE50u1CWD5fB/meme-vibe)  ` :
       "Check out this meme I made with MemeVibe!";
 
     // Append a unique query parameter to prevent caching

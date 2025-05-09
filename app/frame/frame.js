@@ -104,4 +104,3 @@ import Head from 'next/head';
       </div>
     </>
   );
-}
