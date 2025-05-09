@@ -1,0 +1,18 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjEwMjcyOTYsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHg4NkRlNjk0ZTkxYzYzYjJFQ0Q1MzkwMWY3RjdiMUM1NzA2ZDAwNjNGIn0",
+    "payload": "eyJkb21haW4iOiJtZW1lLXZpYmUudmVyY2VsLmFwcCJ9",
+    "signature": "MHhkYjFmNDg0NWJiMDdlY2UzMjBkZTJmZGQxMjBkYzkxZjQzZjNkMzc5NmY0YzVlYWY0N2NhODg2YTc3M2ZkYjc2NjczNzA0M2JkNDVjMGIwNTI3NDg1NTU3MTZlM2JlMzU4YWQwMzcwNjVlMWY4M2U2Zjc3YzNmMmFiNmVmNTIyZTFi"
+  },
+  "frame": {
+    "version": "1",
+    "name": "Meme Vibe",
+    "iconUrl": "https://meme-vibe.vercel.app/logo.png",
+    "homeUrl": "https://meme-vibe.vercel.app",
+    "imageUrl": "https://meme-vibe.vercel.app/image.png",
+    "buttonTitle": "ceate a meme",
+    "splashImageUrl": "https://meme-vibe.vercel.app/splash.png",
+    "splashBackgroundColor": "#eeccff",
+    "webhookUrl": "https://meme-vibe.vercel.app/api/webhook"
+  }
+}
