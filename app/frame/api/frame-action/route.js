@@ -1,118 +1,60 @@
+// app/api/frame-action/route.js
 import { NextResponse } from 'next/server';
 
-/**
- * API endpoint to handle Farcaster Frame button actions
- * This responds to POST requests from Farcaster when users interact with our frame
- */
 export async function POST(request) {
   try {
-    // Parse the frame action data from the request
-    const data = await request.json();
+    // Parse the request body
+    const body = await request.json();
+    const { untrustedData } = body;
+    const { buttonIndex, fid } = untrustedData || {};
     
-    // Get the button index that was clicked (1 for Like, 2 for Create)
-    const buttonIndex = data?.untrustedData?.buttonIndex;
+    // Handle the button click
+    // buttonIndex 1 = Like button
+    // buttonIndex 2 = Make Your Own button (this will redirect via post_redirect)
     
-    // Handle different button actions
     if (buttonIndex === 1) {
-      // Button 1: Like - just return a new frame with a thank you message
-      return new NextResponse(
-        generateFrameHtml({
-          title: "Thanks for the like!",
-          image: data?.untrustedData?.image || "/placeholder.png",
-          text: "Thanks for liking this meme!",
-          buttons: [
-            { text: "Make Your Own", action: "post_redirect", target: process.env.NEXT_PUBLIC_BASE_URL || "https://meme-vibe.vercel.app/" }
-          ]
-        }),
-        {
-          status: 200,
-          headers: {
-            'Content-Type': 'text/html',
+      // Process the like action if needed
+      // Here you could store this info in a database
+      console.log(`User ${fid} liked the meme`);
+      
+      // Return a response with a new frame to show like confirmation
+      return NextResponse.json({
+        frameImageUrl: `https://meme-vibe.vercel.app/api/generateimage?liked=true`,
+        buttons: [
+          {
+            label: '❤️ Liked!',
+            action: 'post'
           },
-        }
-      );
-    } else {
-      // Button 2: Create Your Own - redirect is handled by fc:frame:button:2:target
-      // This code shouldn't normally be reached, but we include it as a fallback
-      return new NextResponse(
-        generateFrameHtml({
-          title: "Create Your Own Meme",
-          text: "Redirecting you to the meme creator...",
-          buttons: [
-            { text: "Go to Meme Creator", action: "post_redirect", target: process.env.NEXT_PUBLIC_BASE_URL || "https://meme-vibe.vercel.app/" }
-          ]
-        }),
-        {
-          status: 200,
-          headers: {
-            'Content-Type': 'text/html',
-          },
-        }
-      );
+          {
+            label: 'Make Your Own',
+            action: 'post_redirect',
+            target: 'https://meme-vibe.vercel.app'
+          }
+        ],
+      });
     }
+    
+    // Default response if nothing else matches
+    return NextResponse.json({
+      frameImageUrl: `https://meme-vibe.vercel.app/api/generateimage`,
+      buttons: [
+        {
+          label: '👍 Like',
+          action: 'post'
+        },
+        {
+          label: 'Make Your Own',
+          action: 'post_redirect',
+          target: 'https://meme-vibe.vercel.app'
+        }
+      ],
+    });
+    
   } catch (error) {
     console.error('Error processing frame action:', error);
-    
-    // Return an error frame
-    return new NextResponse(
-      generateFrameHtml({
-        title: "Error",
-        text: "Something went wrong processing your action.",
-        buttons: [
-          { text: "Try Again", action: "post", target: "/api/frame-action" }
-        ]
-      }),
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'text/html',
-        },
-      }
+    return NextResponse.json(
+      { error: 'Failed to process action' },
+      { status: 500 }
     );
   }
-}
-
-/**
- * Helper function to generate frame HTML with the necessary meta tags
- */
-function generateFrameHtml({ title, image, text, buttons }) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://meme-vibe.vercel.app/";
-  
-  // Generate button meta tags
-  const buttonTags = buttons.map((button, index) => {
-    const tags = [
-      `<meta property="fc:frame:button:${index + 1}" content="${button.text}" />`
-    ];
-    
-    if (button.action) {
-      tags.push(`<meta property="fc:frame:button:${index + 1}:action" content="${button.action}" />`);
-    }
-    
-    if (button.target) {
-      tags.push(`<meta property="fc:frame:button:${index + 1}:target" content="${button.target}" />`);
-    }
-    
-    return tags.join('\n');
-  }).join('\n');
-  
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>${title}</title>
-      <meta property="og:title" content="${title}" />
-      <meta property="og:description" content="${text}" />
-      ${image ? `<meta property="og:image" content="${image}" />` : ''}
-      
-      <meta property="fc:frame" content="vNext" />
-      ${image ? `<meta property="fc:frame:image" content="${image}" />` : ''}
-      <meta property="fc:frame:post_url" content="${baseUrl}/api/frame-action" />
-      ${buttonTags}
-    </head>
-    <body>
-      <h1>${title}</h1>
-      <p>${text}</p>
-    </body>
-    </html>
-  `;
 }

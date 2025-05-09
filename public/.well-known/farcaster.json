@@ -13,6 +13,14 @@
     "buttonTitle": "create a meme",
     "splashImageUrl": "https://meme-vibe.vercel.app/splash.png",
     "splashBackgroundColor": "#eeccff",
-    "webhookUrl": "https://meme-vibe.vercel.app/api/webhook"
+    "webhookUrl": "https://meme-vibe.vercel.app/api/webhook",
+    "primaryCategory": "social",
+    "tags": [
+      "Fun",
+      "Meme",
+      "warpcast",
+      "earn"
+    ]
   }
-}
+  }
+

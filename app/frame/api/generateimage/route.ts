@@ -1,54 +1,60 @@
-// app/frame/api/generateimage/route.ts
+// app/api/frame-action/route.js
+import { NextResponse } from 'next/server';
 
-import { NextApiRequest, NextApiResponse } from 'next';
-import { createCanvas } from 'canvas';
-import fs from 'fs';
-import path from 'path';
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export async function POST(request: Request) {
   try {
-    const { topText, bottomText } = req.body;
-
-    // Create a canvas
-    const width = 800;
-    const height = 600;
-    const canvas = createCanvas(width, height);
-    const context = canvas.getContext('2d');
-
-    // Fill background with white
-    context.fillStyle = '#FFFFFF';
-    context.fillRect(0, 0, width, height);
-
-    // Set text properties
-    context.fillStyle = '#000000';
-    context.font = 'bold 40px Arial';
-    context.textAlign = 'center';
-
-    // Add top text
-    context.fillText(topText, width / 2, 100);
-
-    // Add bottom text
-    context.fillText(bottomText, width / 2, height - 50);
-
-    // Generate a unique filename using timestamp and random number
-    const timestamp = Date.now();
-    const randomNum = Math.floor(Math.random() * 1000000);
-    const filename = `${timestamp}_${randomNum}.png`;
-    const filePath = path.join(process.cwd(), 'public', 'memes', filename);
-
-    // Ensure the directory exists
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-
-    // Write the image to the file system
-    const buffer = canvas.toBuffer('image/png');
-    fs.writeFileSync(filePath, buffer);
-
-    // Construct the image URL
-    const imageUrl = `/memes/${filename}`;
-
-    res.status(200).json({ memeUrl: imageUrl });
+    // Parse the request body
+    const body = await request.json();
+    const { untrustedData } = body;
+    const { buttonIndex, fid } = untrustedData || {};
+    
+    // Handle the button click
+    // buttonIndex 1 = Like button
+    // buttonIndex 2 = Make Your Own button (this will redirect via post_redirect)
+    
+    if (buttonIndex === 1) {
+      // Process the like action if needed
+      // Here you could store this info in a database
+      console.log(`User ${fid} liked the meme`);
+      
+      // Return a response with a new frame to show like confirmation
+      return NextResponse.json({
+        frameImageUrl: `https://meme-vibe.vercel.app/api/generateimage?liked=true`,
+        buttons: [
+          {
+            label: '❤️ Liked!',
+            action: 'post'
+          },
+          {
+            label: 'Make Your Own',
+            action: 'post_redirect',
+            target: 'https://meme-vibe.vercel.app'
+          }
+        ],
+      });
+    }
+    
+    // Default response if nothing else matches
+    return NextResponse.json({
+      frameImageUrl: `https://meme-vibe.vercel.app/api/generateimage`,
+      buttons: [
+        {
+          label: '👍 Like',
+          action: 'post'
+        },
+        {
+          label: 'Make Your Own',
+          action: 'post_redirect',
+          target: 'https://meme-vibe.vercel.app'
+        }
+      ],
+    });
+    
   } catch (error) {
-    console.error('Error generating meme image:', error);
-    res.status(500).json({ error: 'Image generation failed' });
+    console.error('Error processing frame action:', error);
+    return NextResponse.json(
+      { error: 'Failed to process action' },
+      { status: 500 }
+    );
   }
 }
