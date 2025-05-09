@@ -93,7 +93,7 @@ export default function CreateMeme() {
           {/* Template Selection */}
           <div className="bg-white p-4 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold mb-4">Choose a Template</h2>
-            <div className="h-[600px] overflow-y-auto pr-2 mt-8">
+            <div className="h-[600px] overflow-y-auto pr-2">
               <div className="grid grid-cols-2 gap-4">
                 {templates.map((template) => (
                   <div
