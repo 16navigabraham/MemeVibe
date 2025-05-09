@@ -1,52 +1,54 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createCanvas, loadImage } from 'canvas';
-import path from 'path';
-import fs from 'fs';
+// app/frame/api/generateimage/route.ts
 
-export async function GET(req: NextRequest) {
+import { NextApiRequest, NextApiResponse } from 'next';
+import { createCanvas } from 'canvas';
+import fs from 'fs';
+import path from 'path';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const searchParams = req.nextUrl.searchParams;
-    const type = searchParams.get('type') || 'BUSINESS';
-    
-    // Create a canvas for the meme
-    const canvas = createCanvas(600, 800);
-    const ctx = canvas.getContext('2d');
-    
-    // Load template image based on type
-    const templatePath = path.join(process.cwd(), 'public', 'templates', `${type.toLowerCase()}.jpg`);
-    const image = await loadImage(fs.existsSync(templatePath) ? 
-      templatePath : path.join(process.cwd(), 'public', 'templates', 'default.jpg'));
-    
-    // Draw the image
-    ctx.drawImage(image, 0, 0, 600, 800);
-    
-    // Add text
-    ctx.font = 'bold 48px Arial';
-    ctx.fillStyle = 'white';
-    ctx.textAlign = 'center';
-    
-    // Shadow for better visibility
-    ctx.shadowColor = 'black';
-    ctx.shadowBlur = 10;
-    
-    // Draw "HA HA!" at the top
-    ctx.fillText('HA HA!', 300, 100);
-    
-    // Draw the crypto bro type at the bottom
-    ctx.fillText(type, 300, 700);
-    
-    // Convert canvas to buffer
-    const buffer = canvas.toBuffer('image/jpeg');
-    
-    // Return the image
-    return new NextResponse(buffer, {
-      headers: {
-        'Content-Type': 'image/jpeg',
-        'Cache-Control': 'max-age=10'
-      }
-    });
+    const { topText, bottomText } = req.body;
+
+    // Create a canvas
+    const width = 800;
+    const height = 600;
+    const canvas = createCanvas(width, height);
+    const context = canvas.getContext('2d');
+
+    // Fill background with white
+    context.fillStyle = '#FFFFFF';
+    context.fillRect(0, 0, width, height);
+
+    // Set text properties
+    context.fillStyle = '#000000';
+    context.font = 'bold 40px Arial';
+    context.textAlign = 'center';
+
+    // Add top text
+    context.fillText(topText, width / 2, 100);
+
+    // Add bottom text
+    context.fillText(bottomText, width / 2, height - 50);
+
+    // Generate a unique filename using timestamp and random number
+    const timestamp = Date.now();
+    const randomNum = Math.floor(Math.random() * 1000000);
+    const filename = `${timestamp}_${randomNum}.png`;
+    const filePath = path.join(process.cwd(), 'public', 'memes', filename);
+
+    // Ensure the directory exists
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+
+    // Write the image to the file system
+    const buffer = canvas.toBuffer('image/png');
+    fs.writeFileSync(filePath, buffer);
+
+    // Construct the image URL
+    const imageUrl = `/memes/${filename}`;
+
+    res.status(200).json({ memeUrl: imageUrl });
   } catch (error) {
-    console.error('Image generation error:', error);
-    return NextResponse.json({ error: 'Failed to generate image' }, { status: 500 });
+    console.error('Error generating meme image:', error);
+    res.status(500).json({ error: 'Image generation failed' });
   }
 }
