@@ -11,13 +11,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Meme Cast",
     description: "A Meme cast frame",
-    images: ["https://memetest-self.vercel.app//api/og-image"],
+    images: ["https://meme-vibe.vercel.app//api/og-image"],
   },
   other: {
     "fc:frame": "vNext",
-    "fc:frame:image": "https://memetest-self.vercel.app//api/og-image",
+    "fc:frame:image": "https://meme-vibe.vercel.app//api/og-image",
     "fc:frame:button:1": "View Memes",
-    "fc:frame:post_url": "https://memetest-self.vercel.app//api/frame"
+    "fc:frame:post_url": "https://meme-vibe.vercel.app//api/frame"
   }
 };
 

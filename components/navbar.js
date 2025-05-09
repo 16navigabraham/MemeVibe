@@ -14,7 +14,7 @@ export function Navbar() {
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center">
             <img src={Logo.src} alt="Logo" className="h-8 w-8 mr-2" />
-            <span className="text-xl font-bold text-purple-600">MemeCast</span>
+            <span className="text-xl font-bold text-purple-600">MemeVibe</span>
           </Link>
 
           <div className="hidden md:flex space-x-8">

@@ -21,7 +21,7 @@ export async function POST(request) {
           image: data?.untrustedData?.image || "/placeholder.png",
           text: "Thanks for liking this meme!",
           buttons: [
-            { text: "Make Your Own", action: "post_redirect", target: process.env.NEXT_PUBLIC_BASE_URL || "https://memetest-self.vercel.app/" }
+            { text: "Make Your Own", action: "post_redirect", target: process.env.NEXT_PUBLIC_BASE_URL || "https://meme-vibe.vercel.app/" }
           ]
         }),
         {
@@ -39,7 +39,7 @@ export async function POST(request) {
           title: "Create Your Own Meme",
           text: "Redirecting you to the meme creator...",
           buttons: [
-            { text: "Go to Meme Creator", action: "post_redirect", target: process.env.NEXT_PUBLIC_BASE_URL || "https://memetest-self.vercel.app/" }
+            { text: "Go to Meme Creator", action: "post_redirect", target: process.env.NEXT_PUBLIC_BASE_URL || "https://meme-vibe.vercel.app/" }
           ]
         }),
         {
@@ -76,7 +76,7 @@ export async function POST(request) {
  * Helper function to generate frame HTML with the necessary meta tags
  */
 function generateFrameHtml({ title, image, text, buttons }) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://memetest-self.vercel.app/";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://meme-vibe.vercel.app/";
   
   // Generate button meta tags
   const buttonTags = buttons.map((button, index) => {

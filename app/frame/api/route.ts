@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         frames: {
           version: 'vNext',
-          image: `https://memetest-self.vercel.app/api/generate-image?type=${resultType}&fid=${fid}`,
+          image: `https://meme-vibe.vercel.app/api/generate-image?type=${resultType}&fid=${fid}`,
           buttons: [
             { label: "Share Result" }
           ],
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         frames: {
           version: 'vNext',
-          image: `https://memetest-self.vercel.app/api/generate-image?type=${resultType}&fid=${fid}`,
+          image: `https://meme-vibe.vercel.app/api/generate-image?type=${resultType}&fid=${fid}`,
           buttons: [
             { label: "Try Again" }
           ],
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
             post: {
               text: `meme casting is fun `,
               embeds: [{
-                url: "https://memetest-self.vercel.app/"
+                url: "https://meme-vibe.vercel.app/"
               }]
             }
           }
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       frames: {
         version: 'vNext',
-        image: "https://memetest-self.vercel.app//api/og-image",
+        image: "https://meme-vibe.vercel.app//api/og-image",
         buttons: [
           { label: "Cast your meme now!" }
         ]
