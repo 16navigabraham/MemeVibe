@@ -5,7 +5,8 @@ import { MemeGallery } from "@/components/meme-gallery";
 import { HeroSection } from "@/components/hero-section";
 
 // Define metadata for Farcaster Frame
-export const metadata = {
+export async function generateMetadata() {
+  return {
   title: "Meme Cast - Home",
   description: "Create and share memes with Farcaster Frames!",
   openGraph: {
