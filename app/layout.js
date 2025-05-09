@@ -1,27 +1,29 @@
 // app/layout.js
-import "./globals.css";
-import { Inter } from "next/font/google";
+import './globals.css';
 
 export const metadata = {
-  title: "Meme Vibe",
-  description: "Create and cast memes with Meme Vibe on Warpcast",
+  metadataBase: new URL('https://meme-vibe.vercel.app'),
+  title: 'Meme Vibe',
+  description: 'Cast memes directly on Warpcast',
   openGraph: {
-    title: "Meme Vibe",
-    description: "Create and cast memes with Meme Vibe on Warpcast!",
-    url: "https://meme-vibe.vercel.app",
-    type: "website",
+    title: 'Meme Vibe',
+    description: 'Cast memes directly on Warpcast',
+    url: '/',
+    type: 'website',
     images: [
       {
-        url: "https://meme-vibe.vercel.app/og-image.png",
+        url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: "Meme Vibe OG Image",
+        alt: 'Meme Vibe OG Image',
       },
     ],
   },
-  other: {
-    "fc:frame": "vNext",
-    "fc:frame:image": "https://meme-vibe.vercel.app/og-image.png",
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Meme Vibe',
+    description: 'Cast memes directly on Warpcast',
+    images: ['/og-image.png'],
   },
 };
 

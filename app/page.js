@@ -1,24 +1,37 @@
-import Head from "next/head";
-import Link from "next/link";
-import { MemeGallery } from "@/components/meme-gallery";
-import { HeroSection } from "@/components/hero-section";
+// app/page.js
+import Head from 'next/head';
+import Link from 'next/link';
+import { MemeGallery } from '@/components/meme-gallery';
+import { HeroSection } from '@/components/hero-section';
 
 export default function Home() {
   return (
     <>
       <Head>
         <title>Meme Vibe</title>
-        {/* Open Graph Meta Tags */}
-        <meta property="og:title" content="Meme Vibe" />
-        <meta property="og:description" content="Create and cast memes with Meme Vibe on Warpcast!" />
-        <meta property="og:image" content="https://meme-vibe.vercel.app/og-image.png" />
-        <meta property="og:url" content="https://meme-vibe.vercel.app" />
-        <meta property="og:type" content="website" />
-        <meta name="twitter:card" content="summary_large_image" />
+        {/* Primary Meta Tags */}
+        <meta name="title" content="Meme Vibe" />
+        <meta name="description" content="Cast memes directly on Warpcast" />
 
-        {/* Warpcast Frame Embed Tags */}
-        <meta property="fc:frame" content="vNext" />
-        <meta property="fc:frame:image" content="https://meme-vibe.vercel.app/og-image.png" />
+        {/* Open Graph / Facebook Meta Tags */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://meme-vibe.vercel.app/" />
+        <meta property="og:title" content="Meme Vibe" />
+        <meta property="og:description" content="Cast memes directly on Warpcast" />
+        <meta property="og:image" content="https://meme-vibe.vercel.app/og-image.png" />
+
+        {/* Twitter Meta Tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://meme-vibe.vercel.app/" />
+        <meta name="twitter:title" content="Meme Vibe" />
+        <meta name="twitter:description" content="Cast memes directly on Warpcast" />
+        <meta name="twitter:image" content="https://meme-vibe.vercel.app/og-image.png" />
+
+        {/* Warpcast Frame Meta Tag */}
+        <meta
+          name="fc:frame"
+          content='{"version":"next","imageUrl":"https://meme-vibe.vercel.app/og-image.png","button":{"title":"Create Meme","action":{"type":"launch_frame","url":"https://meme-vibe.vercel.app/create"}}}'
+        />
       </Head>
 
       <main className="min-h-screen">
