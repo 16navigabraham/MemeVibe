@@ -1,41 +1,34 @@
 // app/layout.js
-import './globals.css'
+import "./globals.css";
+import { Inter } from "next/font/google";
 
 export const metadata = {
-  metadataBase: new URL('https://meme-vibe.vercel.app'),
-  title: 'Meme Vibe',
-  description: 'Create and share memes easily',
-  // The following metadata won't work for Warpcast, but we'll leave it for other platforms
+  title: "Meme Vibe",
+  description: "Create and cast memes with Meme Vibe on Warpcast",
   openGraph: {
-    title: 'Meme Vibe',
-    description: 'Create and share your favorite memes',
-    url: 'https://meme-vibe.vercel.app',
-    siteName: 'Meme Vibe',
+    title: "Meme Vibe",
+    description: "Create and cast memes with Meme Vibe on Warpcast!",
+    url: "https://meme-vibe.vercel.app",
+    type: "website",
     images: [
       {
-        url: 'https://meme-vibe.vercel.app/api/og',
-        width: 800,
-        height: 800,
+        url: "https://meme-vibe.vercel.app/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Meme Vibe OG Image",
       },
     ],
-    locale: 'en_US',
-    type: 'website',
   },
-}
+  other: {
+    "fc:frame": "vNext",
+    "fc:frame:image": "https://meme-vibe.vercel.app/og-image.png",
+  },
+};
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <head>
-        {/* Manual insertion of Frame metadata - this is critical for Warpcast */}
-        <meta property="fc:frame" content="vNext" />
-        <meta property="fc:frame:image" content="https://meme-vibe.vercel.app/api/og" />
-        <meta property="fc:frame:button:1" content="Create Meme" />
-        <meta property="fc:frame:button:1:action" content="post_redirect" />
-        <meta property="fc:frame:button:1:target" content="https://meme-vibe.vercel.app/create" />
-        <meta property="fc:frame:post_url" content="https://meme-vibe.vercel.app/api/frame-action" />
-      </head>
       <body>{children}</body>
     </html>
-  )
+  );
 }
