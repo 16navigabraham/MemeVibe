@@ -19,8 +19,8 @@ export const handleCastMeme = async (memeUrl: string, memeText: string[]) => {
     
     // Create a descriptive caption for the cast
     const castText = textCaption ? 
-      `${textCaption} - Made with MemeMaker` : 
-      "Check out this meme I made with MemeMaker!";
+      `${textCaption} - Made with MemeCast` : 
+      "Check out this meme I made with MemeCast!";
     
     console.log("Casting meme with URL:", memeUrl);
     console.log("Cast text:", castText);
