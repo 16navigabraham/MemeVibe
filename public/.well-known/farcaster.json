@@ -10,14 +10,9 @@
     "iconUrl": "https://meme-vibe.vercel.app/logo.png",
     "homeUrl": "https://meme-vibe.vercel.app",
     "imageUrl": "https://meme-vibe.vercel.app/image.png",
-    "buttonTitle": "ceate a meme",
+    "buttonTitle": "create a meme",
     "splashImageUrl": "https://meme-vibe.vercel.app/splash.png",
     "splashBackgroundColor": "#eeccff",
     "webhookUrl": "https://meme-vibe.vercel.app/api/webhook"
-
   }
-  {
-    
-  }
-  
 }

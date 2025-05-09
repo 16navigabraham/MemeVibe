@@ -1,38 +1,26 @@
-// app/page.js
-
+import Head from "next/head";
 import Link from "next/link";
 import { MemeGallery } from "@/components/meme-gallery";
 import { HeroSection } from "@/components/hero-section";
 
-// Define metadata for Farcaster Frame
-export async function generateMetadata() {
-  return {
-  title: "Meme Cast - Home",
-  description: "Create and share memes with Farcaster Frames!",
-  openGraph: {
-    title: "Meme Cast - Home",
-    description: "Create and share memes with Farcaster Frames!",
-    url: "https://meme-vibe.vercel.app/",
-    images: [
-      {
-        url: "https://meme-vibe.vercel.app/splash.png", // Replace with your actual image URL
-        width: 800,
-        height: 600,
-        alt: "Meme Cast",
-      },
-    ],
-  },
-  other: {
-    "fc:frame": "vNext",
-    "fc:frame:image": "https://meme-vibe.vercel.app/splash.png", // Replace with your actual image URL
-    "fc:frame:button:1": "Cast Meme",
-    "fc:frame:post_url": "https://meme-vibe.vercel.app/api/cast", // Replace with your actual API endpoint
-  },
-};
-
 export default function Home() {
   return (
     <main className="min-h-screen">
+      <Head>
+        {/* OpenGraph Tags */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Meme Cast - Home" />
+        <meta property="og:description" content="Create and share memes with Farcaster Frames!" />
+        <meta property="og:url" content="https://meme-vibe.vercel.app/" />
+        <meta property="og:image" content="https://meme-vibe.vercel.app/logo.png" />
+        
+        {/* Warpcast Frame Metadata */}
+        <meta property="fc:frame" content="vNext" />
+        <meta property="fc:frame:image" content="https://meme-vibe.vercel.app/logo.png" />
+        <meta property="fc:frame:button:1" content="Cast Meme" />
+        <meta property="fc:frame:post_url" content="https://meme-vibe.vercel.app/api/cast" />
+      </Head>
+
       <HeroSection />
       <div className="container mx-auto px-4 py-8">
         <h2 className="text-2xl font-bold mb-6">Popular Meme Templates</h2>
