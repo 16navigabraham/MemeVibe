@@ -1,6 +1,4 @@
 // app/api/frame-action/route.js
-import { NextResponse } from 'next/server';
-
 export async function POST(request) {
   try {
     // Parse the request body
@@ -8,53 +6,36 @@ export async function POST(request) {
     const { untrustedData } = body;
     const { buttonIndex, fid } = untrustedData || {};
     
-    // Handle the button click
-    // buttonIndex 1 = Like button
-    // buttonIndex 2 = Make Your Own button (this will redirect via post_redirect)
+    console.log(`Frame action received: Button ${buttonIndex} from FID ${fid}`);
     
-    if (buttonIndex === 1) {
-      // Process the like action if needed
-      // Here you could store this info in a database
-      console.log(`User ${fid} liked the meme`);
-      
-      // Return a response with a new frame to show like confirmation
-      return NextResponse.json({
-        frameImageUrl: `https://meme-vibe.vercel.app/api/generateimage?liked=true`,
+    // Return a response with a new frame
+    return new Response(
+      JSON.stringify({
+        frameImageUrl: "https://meme-vibe.vercel.app/api/og",
         buttons: [
           {
-            label: '❤️ Liked!',
-            action: 'post'
-          },
-          {
-            label: 'Make Your Own',
+            label: 'Create Meme',
             action: 'post_redirect',
-            target: 'https://meme-vibe.vercel.app'
+            target: 'https://meme-vibe.vercel.app/create'
           }
         ],
-      });
-    }
-    
-    // Default response if nothing else matches
-    return NextResponse.json({
-      frameImageUrl: `https://meme-vibe.vercel.app/api/generateimage`,
-      buttons: [
-        {
-          label: '👍 Like',
-          action: 'post'
-        },
-        {
-          label: 'Make Your Own',
-          action: 'post_redirect',
-          target: 'https://meme-vibe.vercel.app'
+      }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
         }
-      ],
-    });
-    
+      }
+    );
   } catch (error) {
     console.error('Error processing frame action:', error);
-    return NextResponse.json(
-      { error: 'Failed to process action' },
-      { status: 500 }
+    return new Response(
+      JSON.stringify({ error: 'Failed to process action' }),
+      { 
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
     );
   }
 }
