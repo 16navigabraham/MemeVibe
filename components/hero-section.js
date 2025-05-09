@@ -3,7 +3,8 @@ import { Navbar } from "@/components/navbar"
 
 export function HeroSection() {
   return (
-    <div className="bg-gradient-to-r mb-5 from-purple-500 to-indigo-600">
+    <div className="mb-9"> 
+    <div className="bg-gradient-to-r from-purple-500 to-indigo-600">
       <Navbar />
       <div className="container mx-auto px-4 py-16 md:py-24">
         <div className="text-center">
@@ -27,6 +28,7 @@ export function HeroSection() {
           </div>
         </div>
       </div>
+    </div>
     </div>
   )
 }
