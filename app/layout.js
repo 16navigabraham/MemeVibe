@@ -8,11 +8,11 @@ export const metadata = {
   openGraph: {
     title: 'Meme Vibe',
     description: 'Cast memes directly on Warpcast',
-    url: '/',
+    url: 'https://meme-vibe.vercel.app/',
     type: 'website',
     images: [
       {
-        url: '/og-image.png',
+        url: 'https://meme-vibe.vercel.app/og-image.png',
         width: 1200,
         height: 630,
         alt: 'Meme Vibe OG Image',
@@ -23,7 +23,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'Meme Vibe',
     description: 'Cast memes directly on Warpcast',
-    images: ['/og-image.png'],
+    images: ['https://meme-vibe.vercel.app/og-image.png'],
   },
   other: {
     'fc:frame': JSON.stringify({
