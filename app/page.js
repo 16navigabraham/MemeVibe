@@ -28,10 +28,11 @@ export default function Home() {
         <meta name="twitter:image" content="https://meme-vibe.vercel.app/og-image.png" />
 
         {/* Warpcast Frame Meta Tag */}
-        <meta
+        {/* <meta
           name="fc:frame"
           content='{"version":"next","imageUrl":"https://meme-vibe.vercel.app/og-image.png","button":{"title":"Create Meme","action":{"type":"launch_frame","url":"https://meme-vibe.vercel.app/create"}}}'
-        />
+        /> */}
+        <meta name="fc:frame" content="<stringified FrameEmbed JSON>" />
       </Head>
 
       <main className="min-h-screen">
