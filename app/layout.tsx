@@ -38,7 +38,7 @@ export const metadata: Metadata = {
           url: 'https://meme-vibe.vercel.app',
           name: 'Meme Vibe',
           splashImageUrl: 'https://meme-vibe.vercel.app/logo.png',
-          splashBackgroundColor: '#7e22ce',
+          splashBackgroundColor: '#ffffff',
         },
       },
     }),
