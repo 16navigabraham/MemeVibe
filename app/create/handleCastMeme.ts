@@ -19,7 +19,7 @@ export const handleCastMeme = async (memeUrl: string, memeText: string[]) => {
 
     // Create a descriptive caption for the cast
     const castText = textCaption ?
-      `${textCaption} - Made with with MemeVibe frame(https://meme-vibe.vercel.app/)  ` :
+      `${textCaption} - Made with with MemeVibe frame(https://warpcast.com/miniapps/SE50u1CWD5fB/meme-vibe)  ` :
       "Check out this meme I made with MemeVibe!";
 
     // Append a unique query parameter to prevent caching
