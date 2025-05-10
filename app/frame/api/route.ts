@@ -1,4 +1,34 @@
+// frame/api/route.ts
 import { NextRequest, NextResponse } from 'next/server';
+
+// Add this GET method which is essential for frame discovery
+export async function GET() {
+  return new Response(
+    `<!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta property="og:title" content="Meme Vibe" />
+        <meta property="og:description" content="Cast memes directly on Warpcast" />
+        <meta property="og:image" content="https://meme-vibe.vercel.app/og-image.png" />
+        <meta name="fc:frame" content='${JSON.stringify({
+          version: "next",
+          image: "https://meme-vibe.vercel.app/og-image.png",
+          buttons: [
+            { label: "Cast your meme now!" }
+          ]
+        })}' />
+      </head>
+      <body>
+        <h1>Meme Vibe Frame</h1>
+      </body>
+    </html>`,
+    {
+      headers: {
+        "Content-Type": "text/html",
+      },
+    }
+  );
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -6,10 +36,10 @@ export async function POST(req: NextRequest) {
     const buttonIndex = data.untrustedData?.buttonIndex || 0;
     const fid = data.untrustedData?.fid; // Farcaster user ID
     
-    // Initial state - "Find out now!"
+    // Initial state - "Cast your meme now!"
     if (buttonIndex === 1) {
       // Generate the meme result for this user
-      const resultType = determineResultType(fid); // Create this function to randomize or determine result
+      const resultType = determineResultType(fid);
       
       return NextResponse.json({
         frames: {
@@ -52,7 +82,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       frames: {
         version: 'vNext',
-        image: "https://meme-vibe.vercel.app//api/og-image",
+        image: "https://meme-vibe.vercel.app/api/og-image",
         buttons: [
           { label: "Cast your meme now!" }
         ]
@@ -64,7 +94,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Helper function to determine which "crypto bro" the user is
+// Helper function to determine which type of meme to show
 function determineResultType(fid: string) {
   // You can use the fid to generate a consistent result for each user
   // or randomize among your available options

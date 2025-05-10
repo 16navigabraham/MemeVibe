@@ -25,6 +25,23 @@ export const metadata = {
     description: 'Cast memes directly on Warpcast',
     images: ['/og-image.png'],
   },
+  // Add the fc:frame metadata here
+  other: {
+    'fc:frame': JSON.stringify({
+      version: "next",
+      imageUrl: "https://meme-vibe.vercel.app/og-image.png",
+      button: {
+        title: "Cast your meme now!",
+        action: {
+          type: "launch_frame",
+          url: "https://meme-vibe.vercel.app/frame",
+          name: "Meme Vibe",
+          splashImageUrl: "https://meme-vibe.vercel.app/logo.png",
+          splashBackgroundColor: "#7e22ce" // Purple to match your UI
+        }
+      }
+    })
+  }
 };
 
 export default function RootLayout({ children }) {
