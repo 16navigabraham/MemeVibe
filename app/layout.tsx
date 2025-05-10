@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: "A Meme cast frame",
   // Add Frame metadata here
   openGraph: {
-    title: "Meme Cast",
+    title: "Meme Vibe",
     description: "A Meme cast frame",
     images: ["https://meme-vibe.vercel.app//api/og-image"],
   },
