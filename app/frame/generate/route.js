@@ -1,10 +1,9 @@
 // api/frame/generate/route.js
 import { NextResponse } from 'next/server';
 import { kv } from '@vercel/kv';
-import { getMintFrameMetadata } from '../../../lib/minting-flow';
 
 // This assumes you have an existing function to generate meme images
-import { generateMeme } from '../../../lib/meme-generator';
+import generateMeme from '../../../lib/meme-generator';
 
 export async function POST(req) {
   try {

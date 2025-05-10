@@ -12,16 +12,18 @@ export async function GET(req) {
     }
     
     // Get all meme keys for this FID
-    const keys = await kv.keys(`meme:*:fid`);
+    const keys = await kv.scan({ prefix: 'meme:' });
     const memeIds = [];
     
     // Filter keys to find those belonging to this FID
     for (const key of keys) {
-      const storedFid = await kv.get(key);
-      if (storedFid === fid) {
-        // Extract memeId from key pattern meme:{memeId}:fid
-        const memeId = key.split(':')[1];
-        memeIds.push(memeId);
+      if (key.endsWith(':fid')) {
+        const storedFid = await kv.get(key);
+        if (storedFid === fid) {
+          // Extract memeId from key pattern meme:{memeId}:fid
+          const memeId = key.split(':')[1];
+          memeIds.push(memeId);
+        }
       }
     }
     

@@ -1,5 +1,5 @@
 // api/frame/minting-completed/route.js
-import { handleMintingCompleted } from '../../../lib/minting-flow';
+import { handleMintingCompleted } from '../lib/minting-flow';
 
 export async function GET(req) {
   return handleMintingCompleted(req);

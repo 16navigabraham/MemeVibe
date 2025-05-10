@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import MintedGallery from '../../components/MintedGallery';
+import MintedGallery from '@/components/MintedGallery';
 import Link from 'next/link';
 
 export default function MintedPage() {
