@@ -10,8 +10,8 @@ export async function GET() {
           "MHhiNDIwMzQ1MGZkNzgzYTExZjRiOTllZTFlYjA3NmMwOTdjM2JkOTY1NGM2ODZjYjkyZTAyMzk2Y2Q0YjU2MWY1MjY5NjI5ZGQ5NTliYjU0YzEwOGI4OGVmNjdjMTVlZTdjZDc2YTRiMGU5NzkzNzA3YzkxYzFkOWFjNTg0YmQzNjFi",
       },
       frame: {
-        version: "1",
-        name: "Meme Cast",
+        version: "next",
+        name: "Meme Vibe",
         iconUrl: `${appUrl}/icon.png`,
         homeUrl: appUrl,
         imageUrl: `${appUrl}/frames/hello/opengraph-image`,
