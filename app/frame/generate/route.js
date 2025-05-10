@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { kv } from '@vercel/kv';
 
 // This assumes you have an existing function to generate meme images
-import generateMeme from '../../../lib/meme-generator';
+import generateMeme from '../../../lib/minting-flow';
 
 export async function POST(req) {
   try {
