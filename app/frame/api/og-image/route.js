@@ -1,5 +1,6 @@
-// app/api/og/route.js
-import { ImageResponse } from '@vercel/og';
+// app/api/og-image/route.js
+import { NextResponse } from 'next/server';
+import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
 
@@ -10,29 +11,54 @@ export async function GET() {
         <div
           style={{
             display: 'flex',
-            fontSize: 60,
-            color: 'white',
-            background: 'linear-gradient(to bottom, #7928CA, #FF0080)',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
             width: '100%',
             height: '100%',
-            textAlign: 'center',
-            justifyContent: 'center',
-            alignItems: 'center',
-            flexDirection: 'column',
-            padding: 40,
+            background: 'linear-gradient(to bottom, #7e22ce, #4c1d95)',
+            color: 'white',
+            padding: '40px',
+            fontFamily: 'sans-serif',
           }}
         >
-          <div style={{ fontWeight: 'bold', marginBottom: 20 }}>Meme Vibe</div>
-          <div style={{ fontSize: 36 }}>Create and share your favorite memes</div>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '4px solid white',
+              borderRadius: '24px',
+              padding: '40px',
+            }}
+          >
+            <h1 style={{ fontSize: '60px', fontWeight: 'bold', margin: '0' }}>Meme Vibe</h1>
+            <p style={{ fontSize: '30px', margin: '20px 0 40px' }}>Create and share memes on Warpcast</p>
+            <div
+              style={{
+                background: 'white',
+                color: '#7e22ce',
+                padding: '16px 32px',
+                borderRadius: '12px',
+                fontSize: '24px',
+                fontWeight: 'bold',
+              }}
+            >
+              Cast your meme now!
+            </div>
+          </div>
         </div>
       ),
       {
-        width: 800,
-        height: 800, // Using 1:1 aspect ratio for Warpcast
+        width: 1200,
+        height: 630,
+        headers: {
+          'Cache-Control': 'public, max-age=86400',
+        },
       }
     );
-  } catch (error) {
-    console.error('OG Image error:', error);
-    return new Response('Failed to generate image', { status: 500 });
+  } catch (e) {
+    return new NextResponse('Failed to generate OG image', { status: 500 });
   }
 }
