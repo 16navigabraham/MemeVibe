@@ -5,7 +5,7 @@ import '../styles/globals.css';
 
 
 export const metadata: Metadata = {
-  title: "Meme Cast",
+  title: "Meme Vibe",
   description: "A Meme cast frame",
   // Add Frame metadata here
   openGraph: {
