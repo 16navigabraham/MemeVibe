@@ -178,32 +178,35 @@ export default function CreateMeme() {
             <h2 className="text-xl font-semibold mb-4">Your Meme</h2>
 
             {generatedMeme ? (
-              <>
-                <div className="relative w-full h-64 mb-6 bg-gray-100 rounded-lg overflow-hidden">
-                  <Image
-                    src={generatedMeme.url || "/placeholder.svg?height=256&width=256"}
-                    alt="Generated Meme"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
+  <>
+    <div className="relative w-full h-64 mb-6 bg-gray-100 rounded-lg overflow-hidden">
+      <Image
+        src={generatedMeme.url || "/placeholder.svg?height=256&width=256"}
+        alt="Generated Meme"
+        fill
+        className="object-contain"
+      />
+    </div>
 
-                <button
-                  onClick={() => router.push('/')}
-                  className="w-full flex items-center justify-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md transition-colors"
-                >
-                  Back to Home
-                </button>
+    <button
+      onClick={() => router.push('/')}
+      className="w-full flex items-center justify-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md transition-colors"
+    >
+      Back to Home
+    </button>
 
-                <button
-                  onClick={onCastClick}
-                  className="w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition-colors mt-2"
-                >
-                  <Send className="mr-2 h-5 w-5" />
-                  Cast to Warpcast
-                </button>
-              </>
-            ) : (
+    <button
+      onClick={onCastClick}
+      className="w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition-colors mt-2"
+    >
+      <Send className="mr-2 h-5 w-5" />
+      Cast to Warpcast
+    </button>
+    <p className="text-sm text-gray-500 mt-4">
+      🛠️ Minting feature coming soon...
+    </p>
+  </>
+) : (
               <div className="flex flex-col items-center justify-center h-64 text-gray-500">
                 <p>Your generated meme will appear here</p>
               </div>
