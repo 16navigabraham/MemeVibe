@@ -1,12 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Navbar } from "@/components/navbar"
 import { updateApiCredentials, getApiCredentials } from "@/lib/api"
 import { Eye, EyeOff, Save, Lock, Swords } from "lucide-react"
-import { useWalletClient, usePublicClient } from "wagmi"
+import { 
+  useSendTransaction, 
+  useWaitForTransactionReceipt,
+  useAccount 
+} from "wagmi"
 import { MEME_BATTLES_CONTRACT } from "@/lib/contract"
-import { parseGwei } from "viem"
+import { parseGwei, parseEther, encodeFunctionData } from "viem"
 
 export default function AdminPage() {
   // Existing states
@@ -23,10 +27,21 @@ export default function AdminPage() {
   const [castB, setCastB] = useState("")
   const [battleStatus, setBattleStatus] = useState("")
 
-  // Get wallet client for contract interaction
-  const { data: walletClient } = useWalletClient()
-  const publicClient = usePublicClient()
-  const address = walletClient?.account?.address
+  // Replace useWalletClient with new hooks
+  const { address } = useAccount()
+  const { 
+    data: hash,
+    error: txError,
+    isPending,
+    sendTransaction 
+  } = useSendTransaction()
+
+  const { 
+    isLoading: isConfirming, 
+    isSuccess: isConfirmed 
+  } = useWaitForTransactionReceipt({
+    hash,
+  })
 
   // Existing login handler
   const handleLogin = (e) => {
@@ -58,10 +73,10 @@ export default function AdminPage() {
     }
   }
 
-  // New battle creation handler
+  // Update battle creation handler
   const handleCreateBattle = async (e) => {
     e.preventDefault()
-    if (!walletClient) {
+    if (!address) {
       setBattleStatus("Please connect your wallet")
       return
     }
@@ -73,39 +88,45 @@ export default function AdminPage() {
     try {
       setBattleStatus("Creating battle...")
 
-      // Get current gas price
-      const gasPrice = await publicClient.getGasPrice()
-
-      // Simulate transaction first
-      const { request } = await publicClient.simulateContract({
-        address: MEME_BATTLES_CONTRACT.address,
+      // Encode the function data
+      const data = encodeFunctionData({
         abi: MEME_BATTLES_CONTRACT.abi,
         functionName: "createBattle",
         args: [castA, castB],
-        account: address,
       })
 
-      // Execute with optimized gas parameters
-      const tx = await walletClient.writeContract({
-        ...request,
-        gas: request.gas ? (request.gas * 120n) / 100n : 0n, // 20% buffer
-        maxFeePerGas: parseGwei("0.001"), // 0.001 gwei
-        maxPriorityFeePerGas: parseGwei("0.0001"), // 0.0001 gwei
+      // Send transaction using new hook
+      sendTransaction({
+        to: MEME_BATTLES_CONTRACT.address,
+        data,
+        value: parseEther("0"),
+        gas: BigInt(300000), // Estimated gas limit
+        maxFeePerGas: parseGwei("0.1"),
+        maxPriorityFeePerGas: parseGwei("0.1"),
       })
+    } catch (error) {
+      console.error("Battle creation error:", error)
+      setBattleStatus(`❌ ${error.message || "Failed to create battle"}`)
+    }
+  }
 
-      await tx.wait()
+  // Add transaction status effect
+  useEffect(() => {
+    if (isPending) {
+      setBattleStatus("Waiting for confirmation...")
+    }
+    if (isConfirming) {
+      setBattleStatus("Transaction confirming...")
+    }
+    if (isConfirmed) {
       setBattleStatus("✅ Battle created successfully!")
       setCastA("")
       setCastB("")
-    } catch (error) {
-      console.error("Battle creation error:", error)
-      if (error.message?.includes("insufficient funds")) {
-        setBattleStatus("❌ Insufficient BASE. Get BASE tokens from bridge.base.org")
-      } else {
-        setBattleStatus(`❌ ${error.message || "Failed to create battle"}`)
-      }
     }
-  }
+    if (txError) {
+      setBattleStatus(`❌ ${txError.message || "Transaction failed"}`)
+    }
+  }, [isPending, isConfirming, isConfirmed, txError])
 
   return (
     <div className="min-h-screen bg-gray-50">
