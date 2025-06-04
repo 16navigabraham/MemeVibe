@@ -18,7 +18,7 @@ export default function AdminPage() {
     e.preventDefault()
 
     // Check if password matches the hardcoded admin password
-    if (password === "asJrA.61271895$") {
+    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
       setIsAuthenticated(true)
       setError("")
 

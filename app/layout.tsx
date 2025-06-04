@@ -32,10 +32,10 @@ export const metadata: Metadata = {
       version: 'next',
       imageUrl: 'https://meme-vibe.vercel.app/og-image.png',
       button: {
-        title: '🚩 Start Meme Vibe',
+        title:  ' Start Meme Vibe ▶️',
         action: {
           type: 'launch_frame',
-          url: 'https://meme-vibe.vercel.app',
+          url: 'https://meme-vibe.vercel.app/create',
           name: 'Meme Vibe',
           splashImageUrl: 'https://meme-vibe.vercel.app/logo.png',
           splashBackgroundColor: '#ffffff',
@@ -48,12 +48,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        <meta name="fc:frame" content={metadata.other['fc:frame']} />
-      </head>
       <body>
         <Providers>{children}</Providers>
-        <FrameInitializer />
       </body>
     </html>
   );

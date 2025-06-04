@@ -17,6 +17,7 @@ export function Navbar() {
             <span className="text-xl font-bold text-purple-600">MemeVibe</span>
           </Link>
 
+          {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-8">
             <Link href="/" className="text-gray-700 hover:text-purple-600 transition-colors">
               Home
@@ -27,11 +28,15 @@ export function Navbar() {
             <Link href="/gallery" className="text-gray-700 hover:text-purple-600 transition-colors">
               Gallery
             </Link>
+            <Link href="/memebattle" className="text-gray-700 hover:text-purple-600 transition-colors">
+              MemeBattle
+            </Link>
             <Link href="/admin" className="text-gray-700 hover:text-purple-600 transition-colors">
               Admin
             </Link>
           </div>
 
+          {/* Mobile Menu Button */}
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -42,6 +47,7 @@ export function Navbar() {
           </div>
         </div>
 
+        {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden py-4">
             <div className="flex flex-col space-y-4">
@@ -65,6 +71,13 @@ export function Navbar() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Gallery
+              </Link>
+              <Link
+                href="/memebattle"
+                className="text-gray-700 hover:text-purple-600 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                MemeBattle
               </Link>
               <Link
                 href="/admin"
