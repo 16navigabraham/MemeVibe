@@ -11,7 +11,7 @@ import {
   usePublicClient 
 } from "wagmi"
 import { MEME_BATTLES_CONTRACT } from "@/lib/contract"
-import { parseGwei, parseEther, encodeFunctionData } from "viem"
+import { parseGwei, encodeFunctionData } from "viem"
 
 export default function AdminPage() {
   // Existing states
@@ -77,67 +77,52 @@ export default function AdminPage() {
     }
   }
 
-  // Update battle creation handler
+  // Update battle creation handler - simplified for Farcaster
   const handleCreateBattle = async (e) => {
     e.preventDefault()
-    if (!address) {
-      setBattleStatus("Please connect Farcaster wallet")
-      return
-    }
     if (!castA || !castB) {
       setBattleStatus("Please fill both cast links")
       return
     }
 
     try {
-      setBattleStatus("Preparing battle creation...")
-      console.log("Creating battle with Farcaster:", { castA, castB })
+      setBattleStatus("Preparing battle...")
 
-      // Encode function data
       const data = encodeFunctionData({
         abi: MEME_BATTLES_CONTRACT.abi,
         functionName: "createBattle",
         args: [castA, castB],
       })
 
-      // Farcaster-optimized transaction parameters
+      // Simplified transaction call for Farcaster
       sendTransaction({
         to: MEME_BATTLES_CONTRACT.address,
         data,
-        value: BigInt(0),
-        // Optimized gas parameters for Farcaster on Base
-        gas: BigInt(150000), // Lower gas limit for Base
-        maxFeePerGas: parseGwei("0.05"), // 0.05 gwei
-        maxPriorityFeePerGas: parseGwei("0.01"), // 0.01 gwei
+        value: BigInt(0)
       })
+
     } catch (error) {
-      console.error("Farcaster battle creation error:", error)
+      console.error("Battle creation error:", error)
       setBattleStatus(`❌ ${error?.message || "Failed to create battle"}`)
     }
   }
 
-  // Update transaction status effect for Farcaster
+  // Simplified transaction monitoring
   useEffect(() => {
     if (isPending) {
-      setBattleStatus("Confirm in Farcaster wallet...")
+      setBattleStatus("Confirm in Warpcast...")
     }
     if (isConfirming) {
-      setBattleStatus("Creating battle on Base...")
+      setBattleStatus("Creating battle...")
     }
     if (isConfirmed) {
-      setBattleStatus("✅ Battle created successfully!")
+      setBattleStatus("✅ Battle created!")
       setCastA("")
       setCastB("")
       setTimeout(() => setBattleStatus(""), 3000)
     }
     if (txError) {
-      console.error("Farcaster transaction error:", txError)
-      const errorMsg = txError?.message || "Transaction failed"
-      if (errorMsg.includes("insufficient funds")) {
-        setBattleStatus("❌ Need BASE tokens for gas. Visit bridge.base.org")
-      } else {
-        setBattleStatus(`❌ ${errorMsg}`)
-      }
+      setBattleStatus(`❌ ${txError?.message || "Failed to create battle"}`)
     }
   }, [isPending, isConfirming, isConfirmed, txError])
 

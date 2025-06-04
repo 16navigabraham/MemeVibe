@@ -3,13 +3,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { formatDistanceToNow } from "date-fns";
 import { 
   useAccount, 
   useSendTransaction, 
   useWaitForTransactionReceipt,
   usePublicClient 
 } from "wagmi";
-import { Navbar } from "@/components/navbar"; // Make sure this path is correct
+import { Navbar } from "@/components/navbar";
 import { MEME_BATTLES_CONTRACT } from "@/lib/contract";
 import { parseGwei, encodeFunctionData } from "viem";
 
@@ -20,13 +21,12 @@ export default function MemeBattlePage() {
   const [loading, setLoading] = useState(true);
   const [voteStatus, setVoteStatus] = useState("");
 
-  // Add new transaction hooks
   const { 
     data: hash,
     error: txError,
     isPending,
     sendTransaction 
-  } = useSendTransaction()
+  } = useSendTransaction();
 
   const { 
     isLoading: isConfirming, 
@@ -39,48 +39,60 @@ export default function MemeBattlePage() {
     try {
       setLoading(true);
       
-      // Get total battle count from contract
-      const battleCount = await publicClient.readContract({
-        address: MEME_BATTLES_CONTRACT.address,
-        abi: MEME_BATTLES_CONTRACT.abi,
-        functionName: "battleCount",
-      });
+      // Add error handling for contract read
+      if (!publicClient) {
+        console.error("Public client not initialized");
+        return;
+      }
 
-      // Fetch all battles
-      const battlePromises = [];
+      // Wrap contract reads in try-catch
+      let battleCount;
+      try {
+        battleCount = await publicClient.readContract({
+          address: MEME_BATTLES_CONTRACT.address,
+          abi: MEME_BATTLES_CONTRACT.abi,
+          functionName: "battleCount",
+        });
+      } catch (error) {
+        console.error("Error reading battle count:", error);
+        setLoading(false);
+        return;
+      }
+
+      // Fetch battles with error handling
+      const battles = [];
       for (let i = 1; i <= Number(battleCount); i++) {
-        battlePromises.push(
-          publicClient.readContract({
+        try {
+          const battle = await publicClient.readContract({
             address: MEME_BATTLES_CONTRACT.address,
             abi: MEME_BATTLES_CONTRACT.abi,
             functionName: "getBattle",
             args: [i],
-          })
-        );
+          });
+          
+          battles.push({
+            id: i,
+            castA: battle.castA,
+            castB: battle.castB,
+            votesA: Number(battle.votesA),
+            votesB: Number(battle.votesB),
+            isActive: battle.isActive,
+            createdAt: Number(battle.createdAt)
+          });
+        } catch (error) {
+          console.error(`Error fetching battle ${i}:`, error);
+          continue;
+        }
       }
 
-      const battleResults = await Promise.all(battlePromises);
-      
-      // Format battle data
-      const formattedBattles = battleResults.map((battle, index) => ({
-        id: index + 1,
-        castA: battle.castA,
-        castB: battle.castB,
-        votesA: Number(battle.votesA),
-        votesB: Number(battle.votesB),
-        isActive: battle.isActive,
-        createdAt: Number(battle.createdAt)
-      }));
-
-      // Sort battles by creation time (newest first)
-      const sortedBattles = formattedBattles
-        .filter(battle => battle.isActive)
+      // Sort battles safely
+      const sortedBattles = battles
+        .filter(battle => battle && battle.isActive)
         .sort((a, b) => b.createdAt - a.createdAt);
 
       setBattles(sortedBattles);
     } catch (error) {
-      console.error("Error fetching battles:", error);
-      setBattles([]);
+      console.error("Error in fetchBattles:", error);
     } finally {
       setLoading(false);
     }
@@ -108,47 +120,37 @@ export default function MemeBattlePage() {
     fetchBattles();
   }, [publicClient]);
 
-  // Update handleVote function
+  // Update handleVote function - simplified for Farcaster
   const handleVote = async (battleId, choice) => {
     try {
-      if (!address) {
-        setVoteStatus("Please connect Farcaster wallet")
-        return
-      }
-
       setVoteStatus("Preparing vote...")
-      console.log("Vote attempt:", { battleId, choice, wallet: "Farcaster" })
 
-      // Encode with proper types for Farcaster
       const data = encodeFunctionData({
         abi: MEME_BATTLES_CONTRACT.abi,
         functionName: "vote",
         args: [BigInt(battleId), BigInt(choice)]
       })
 
-      // Farcaster-optimized transaction parameters
+      // Simplified transaction call for Farcaster
       sendTransaction({
         to: MEME_BATTLES_CONTRACT.address,
         data,
-        value: BigInt(0),
-        gas: BigInt(150000), // Lower gas limit for Farcaster
-        maxFeePerGas: parseGwei("0.05"),
-        maxPriorityFeePerGas: parseGwei("0.01")
+        value: BigInt(0)
       })
 
     } catch (error) {
-      console.error("Farcaster vote error:", error)
+      console.error("Vote error:", error)
       setVoteStatus(`❌ ${error?.message || "Vote failed"}`)
     }
   }
 
-  // Add Farcaster-specific transaction monitoring
+  // Simplified transaction monitoring
   useEffect(() => {
     if (isPending) {
-      setVoteStatus("Confirm in Farcaster...")
+      setVoteStatus("Confirming in Warpcast...")
     }
     if (isConfirming) {
-      setVoteStatus("Confirming on Base...")
+      setVoteStatus("Transaction confirming...")
     }
     if (isConfirmed) {
       setVoteStatus("✅ Vote confirmed!")
@@ -156,9 +158,7 @@ export default function MemeBattlePage() {
       setTimeout(() => setVoteStatus(""), 3000)
     }
     if (txError) {
-      const errorMsg = txError?.message || "Transaction failed"
-      console.error("Farcaster error:", txError)
-      setVoteStatus(`❌ ${errorMsg}`)
+      setVoteStatus(`❌ ${txError?.message || "Transaction failed"}`)
     }
   }, [isPending, isConfirming, isConfirmed, txError])
 
@@ -189,11 +189,6 @@ export default function MemeBattlePage() {
             {loading ? (
               <div className="text-center py-12">
                 <p className="text-white">Loading meme battles...</p>
-              </div>
-            ) : battles.length === 0 ? (
-              <div className="text-center py-12 bg-purple-800/30 rounded-lg border border-purple-500/20">
-                <h3 className="text-xl font-medium text-purple-100 mb-2">No Active Battles</h3>
-                <p className="text-purple-200">Check back soon for new meme battles!</p>
               </div>
             ) : (
               <div className="max-w-2xl mx-auto space-y-6 mt-8 w-full">
