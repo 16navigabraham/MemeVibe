@@ -2,8 +2,9 @@
 
 import { useState } from "react"
 import { Navbar } from "@/components/navbar"
-import { updateApiCredentials, getApiCredentials } from "@/lib/api"
-import { Eye, EyeOff, Save, Lock } from "lucide-react"
+import { Lock, Swords } from "lucide-react"
+import { MEME_BATTLES_CONTRACT } from "@/lib/contract"
+import { useWalletClient } from "wagmi"
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -13,6 +14,10 @@ export default function AdminPage() {
   const [apiPassword, setApiPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [successMessage, setSuccessMessage] = useState("")
+  const [castA, setCastA] = useState("")
+  const [castB, setCastB] = useState("")
+  const [createStatus, setCreateStatus] = useState("")
+  const { data: walletClient } = useWalletClient()
 
   const handleLogin = (e) => {
     e.preventDefault()
@@ -45,6 +50,36 @@ export default function AdminPage() {
       setTimeout(() => setSuccessMessage(""), 3000)
     } catch (err) {
       setError("Failed to update API credentials")
+    }
+  }
+
+  const handleCreateBattle = async (e) => {
+    e.preventDefault()
+    if (!walletClient) {
+      setCreateStatus("Please connect your wallet")
+      return
+    }
+    if (!castA || !castB) {
+      setCreateStatus("Please fill both cast links")
+      return
+    }
+
+    try {
+      setCreateStatus("Creating battle...")
+      const tx = await walletClient.writeContract({
+        address: MEME_BATTLES_CONTRACT.address,
+        abi: MEME_BATTLES_CONTRACT.abi,
+        functionName: "createBattle",
+        args: [castA, castB],
+      })
+
+      await tx.wait()
+      setCreateStatus("✅ Battle created successfully!")
+      setCastA("")
+      setCastB("")
+    } catch (error) {
+      console.error("Battle creation error:", error)
+      setCreateStatus("❌ Failed to create battle")
     }
   }
 
@@ -91,65 +126,119 @@ export default function AdminPage() {
             </form>
           </div>
         ) : (
-          <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-6">Update API Credentials</h2>
+          <div className="max-w-md mx-auto space-y-8">
+            {/* Existing API credentials form */}
+            <div className="bg-white p-8 rounded-lg shadow-md">
+              <h2 className="text-2xl font-semibold mb-6">Update API Credentials</h2>
 
-            <form onSubmit={handleUpdateCredentials}>
-              <div className="mb-4">
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-                  Imgflip Username
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="Enter Imgflip username"
-                  required
-                />
-              </div>
-
-              <div className="mb-6">
-                <label htmlFor="apiPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                  Imgflip Password
-                </label>
-                <div className="relative">
+              <form onSubmit={handleUpdateCredentials}>
+                <div className="mb-4">
+                  <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+                    Imgflip Username
+                  </label>
                   <input
-                    type={showPassword ? "text" : "password"}
-                    id="apiPassword"
-                    value={apiPassword}
-                    onChange={(e) => setApiPassword(e.target.value)}
+                    type="text"
+                    id="username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="Enter Imgflip password"
+                    placeholder="Enter Imgflip username"
                     required
                   />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400" />
-                    ) : (
-                      <Eye className="h-5 w-5 text-gray-400" />
-                    )}
-                  </button>
                 </div>
-              </div>
 
-              {error && <div className="mb-4 text-red-500 text-sm">{error}</div>}
+                <div className="mb-6">
+                  <label htmlFor="apiPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                    Imgflip Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      id="apiPassword"
+                      value={apiPassword}
+                      onChange={(e) => setApiPassword(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      placeholder="Enter Imgflip password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5 text-gray-400" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                </div>
 
-              {successMessage && <div className="mb-4 text-green-500 text-sm">{successMessage}</div>}
+                {error && <div className="mb-4 text-red-500 text-sm">{error}</div>}
 
-              <button
-                type="submit"
-                className="w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition-colors"
-              >
-                <Save className="mr-2 h-5 w-5" />
-                Update Credentials
-              </button>
-            </form>
+                {successMessage && <div className="mb-4 text-green-500 text-sm">{successMessage}</div>}
+
+                <button
+                  type="submit"
+                  className="w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition-colors"
+                >
+                  <Save className="mr-2 h-5 w-5" />
+                  Update Credentials
+                </button>
+              </form>
+            </div>
+
+            <div className="bg-white p-8 rounded-lg shadow-md">
+              <h2 className="text-2xl font-semibold mb-6">Create New Battle</h2>
+              <form onSubmit={handleCreateBattle}>
+                <div className="mb-4">
+                  <label htmlFor="castA" className="block text-sm font-medium text-gray-700 mb-1">
+                    Cast A Link
+                  </label>
+                  <input
+                    type="text"
+                    id="castA"
+                    value={castA}
+                    onChange={(e) => setCastA(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="Enter first cast link"
+                    required
+                  />
+                </div>
+
+                <div className="mb-6">
+                  <label htmlFor="castB" className="block text-sm font-medium text-gray-700 mb-1">
+                    Cast B Link
+                  </label>
+                  <input
+                    type="text"
+                    id="castB"
+                    value={castB}
+                    onChange={(e) => setCastB(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="Enter second cast link"
+                    required
+                  />
+                </div>
+
+                {createStatus && (
+                  <div className={`mb-4 text-sm ${
+                    createStatus.includes("✅") ? "text-green-500" : "text-red-500"
+                  }`}>
+                    {createStatus}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition-colors"
+                >
+                  <Swords className="mr-2 h-5 w-5" />
+                  Create Battle
+                </button>
+              </form>
+            </div>
           </div>
         )}
       </div>
