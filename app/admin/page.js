@@ -4,8 +4,9 @@ import { useState } from "react"
 import { Navbar } from "@/components/navbar"
 import { updateApiCredentials, getApiCredentials } from "@/lib/api"
 import { Eye, EyeOff, Save, Lock, Swords } from "lucide-react"
-import { useWalletClient } from "wagmi"
+import { useWalletClient, usePublicClient } from "wagmi"
 import { MEME_BATTLES_CONTRACT } from "@/lib/contract"
+import { parseGwei } from "viem"
 
 export default function AdminPage() {
   // Existing states
@@ -24,6 +25,8 @@ export default function AdminPage() {
 
   // Get wallet client for contract interaction
   const { data: walletClient } = useWalletClient()
+  const publicClient = usePublicClient()
+  const address = walletClient?.account?.address
 
   // Existing login handler
   const handleLogin = (e) => {
@@ -70,11 +73,24 @@ export default function AdminPage() {
     try {
       setBattleStatus("Creating battle...")
 
-      const tx = await walletClient.writeContract({
+      // Get current gas price
+      const gasPrice = await publicClient.getGasPrice()
+
+      // Simulate transaction first
+      const { request } = await publicClient.simulateContract({
         address: MEME_BATTLES_CONTRACT.address,
         abi: MEME_BATTLES_CONTRACT.abi,
         functionName: "createBattle",
         args: [castA, castB],
+        account: address,
+      })
+
+      // Execute with optimized gas parameters
+      const tx = await walletClient.writeContract({
+        ...request,
+        gas: request.gas ? (request.gas * 120n) / 100n : 0n, // 20% buffer
+        maxFeePerGas: parseGwei("0.001"), // 0.001 gwei
+        maxPriorityFeePerGas: parseGwei("0.0001"), // 0.0001 gwei
       })
 
       await tx.wait()
@@ -83,7 +99,11 @@ export default function AdminPage() {
       setCastB("")
     } catch (error) {
       console.error("Battle creation error:", error)
-      setBattleStatus(`❌ ${error.message || "Failed to create battle"}`)
+      if (error.message?.includes("insufficient funds")) {
+        setBattleStatus("❌ Insufficient BASE. Get BASE tokens from bridge.base.org")
+      } else {
+        setBattleStatus(`❌ ${error.message || "Failed to create battle"}`)
+      }
     }
   }
 

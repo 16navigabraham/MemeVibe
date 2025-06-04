@@ -7,6 +7,7 @@ import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 import { formatDistanceToNow } from "date-fns";
 import { Navbar } from "@/components/navbar";
 import { MEME_BATTLES_CONTRACT } from "@/lib/contract";
+import { parseGwei } from "viem";
 
 export default function MemeBattlePage() {
   const { address } = useAccount();
@@ -14,6 +15,7 @@ export default function MemeBattlePage() {
   const publicClient = usePublicClient();
   const [battles, setBattles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [voteStatus, setVoteStatus] = useState("");
 
   const fetchBattles = async () => {
     try {
@@ -88,26 +90,52 @@ export default function MemeBattlePage() {
     fetchBattles();
   }, [publicClient]);
 
-  const handleVote = async (id, choice) => {
-    if (!walletClient) {
-      alert("Please connect your wallet to vote");
-      return;
-    }
-
+  const handleVote = async (battleId, choice) => {
     try {
-      const tx = await walletClient.writeContract({
+      if (!walletClient || !address) {
+        throw new Error("Please connect your wallet");
+      }
+
+      setVoteStatus("Preparing transaction...");
+
+      // Simulate transaction first
+      const { request } = await publicClient.simulateContract({
         address: MEME_BATTLES_CONTRACT.address,
         abi: MEME_BATTLES_CONTRACT.abi,
         functionName: "vote",
-        args: [id, choice],
-        value: BigInt(20000000000000), // 0.00002 BASE fee
+        args: [battleId, choice],
+        account: address,
       });
 
-      await publicClient.waitForTransactionReceipt({ hash: tx });
-      await fetchBattles(); // Refresh battles after voting
+      // Execute with optimized gas parameters
+      const tx = await walletClient.writeContract({
+        ...request,
+        gas: request.gas ? (request.gas * 120n) / 100n : undefined, // 20% buffer
+        maxFeePerGas: parseGwei("0.001"), // Very low gas price for Base
+        maxPriorityFeePerGas: parseGwei("0.0001"),
+      });
+
+      setVoteStatus("Voting... Please wait for confirmation");
+      
+      const receipt = await publicClient.waitForTransactionReceipt({ 
+        hash: tx,
+        confirmations: 1
+      });
+
+      if (receipt.status === "success") {
+        setVoteStatus("✅ Vote successful!");
+        await fetchBattles(); // Refresh battles after voting
+      }
+
     } catch (error) {
-      console.error("Error voting:", error);
-      alert("Error casting vote. Make sure you have enough BASE to cover the fee.");
+      console.error("Voting error:", error);
+      if (error.message?.includes("insufficient funds")) {
+        setVoteStatus(`❌ Insufficient BASE. Get BASE tokens from bridge.base.org`);
+      } else if (error.message?.includes("user rejected")) {
+        setVoteStatus("Transaction cancelled");
+      } else {
+        setVoteStatus(`❌ ${error.message || "Failed to vote"}`);
+      }
     }
   };
 
