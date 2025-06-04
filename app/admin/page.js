@@ -35,6 +35,12 @@ export default function AdminPage() {
         expected: expectedPassword?.length
       })
     }
+
+    console.log("Password comparison:", {
+      entered: cleanPassword,
+      expected: expectedPassword,
+      match: cleanPassword === expectedPassword
+    })
   }
 
   const handleUpdateCredentials = (e) => {
