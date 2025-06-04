@@ -81,7 +81,7 @@ export default function AdminPage() {
   const handleCreateBattle = async (e) => {
     e.preventDefault()
     if (!address) {
-      setBattleStatus("Please connect your wallet")
+      setBattleStatus("Please connect Farcaster wallet")
       return
     }
     if (!castA || !castB) {
@@ -90,7 +90,8 @@ export default function AdminPage() {
     }
 
     try {
-      setBattleStatus("Preparing transaction...")
+      setBattleStatus("Preparing battle creation...")
+      console.log("Creating battle with Farcaster:", { castA, castB })
 
       // Encode function data
       const data = encodeFunctionData({
@@ -99,27 +100,29 @@ export default function AdminPage() {
         args: [castA, castB],
       })
 
-      // Send transaction
+      // Farcaster-optimized transaction parameters
       sendTransaction({
         to: MEME_BATTLES_CONTRACT.address,
         data,
-        gas: BigInt(300000), // Fixed gas limit
-        maxFeePerGas: parseGwei("0.1"),
-        maxPriorityFeePerGas: parseGwei("0.01"),
+        value: BigInt(0),
+        // Optimized gas parameters for Farcaster on Base
+        gas: BigInt(150000), // Lower gas limit for Base
+        maxFeePerGas: parseGwei("0.05"), // 0.05 gwei
+        maxPriorityFeePerGas: parseGwei("0.01"), // 0.01 gwei
       })
     } catch (error) {
-      console.error("Battle creation error:", error)
+      console.error("Farcaster battle creation error:", error)
       setBattleStatus(`❌ ${error?.message || "Failed to create battle"}`)
     }
   }
 
-  // Update transaction status effect
+  // Update transaction status effect for Farcaster
   useEffect(() => {
     if (isPending) {
-      setBattleStatus("Waiting for wallet confirmation...")
+      setBattleStatus("Confirm in Farcaster wallet...")
     }
     if (isConfirming) {
-      setBattleStatus("Transaction confirming on Base...")
+      setBattleStatus("Creating battle on Base...")
     }
     if (isConfirmed) {
       setBattleStatus("✅ Battle created successfully!")
@@ -128,8 +131,13 @@ export default function AdminPage() {
       setTimeout(() => setBattleStatus(""), 3000)
     }
     if (txError) {
-      const errorMessage = txError?.message || "Transaction failed"
-      setBattleStatus(`❌ ${errorMessage}`)
+      console.error("Farcaster transaction error:", txError)
+      const errorMsg = txError?.message || "Transaction failed"
+      if (errorMsg.includes("insufficient funds")) {
+        setBattleStatus("❌ Need BASE tokens for gas. Visit bridge.base.org")
+      } else {
+        setBattleStatus(`❌ ${errorMsg}`)
+      }
     }
   }, [isPending, isConfirming, isConfirmed, txError])
 
@@ -285,10 +293,17 @@ export default function AdminPage() {
 
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition-colors"
+                  disabled={isPending || isConfirming}
+                  className={`w-full flex items-center justify-center ${
+                    isPending || isConfirming 
+                      ? 'bg-gray-400' 
+                      : 'bg-purple-600 hover:bg-purple-700'
+                  } text-white font-bold py-2 px-4 rounded-md transition-colors`}
                 >
                   <Swords className="mr-2 h-5 w-5" />
-                  Create Battle
+                  {isPending ? 'Check Farcaster...' : 
+                   isConfirming ? 'Creating Battle...' : 
+                   'Create Battle'}
                 </button>
               </form>
             </div>

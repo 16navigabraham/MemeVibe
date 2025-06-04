@@ -9,8 +9,6 @@ import {
   useWaitForTransactionReceipt,
   usePublicClient 
 } from "wagmi";
-import { formatDistanceToNow } from "date-fns";
-import { Navbar } from "@/components/navbar";
 import { MEME_BATTLES_CONTRACT } from "@/lib/contract";
 import { parseGwei, encodeFunctionData } from "viem";
 
@@ -113,45 +111,55 @@ export default function MemeBattlePage() {
   const handleVote = async (battleId, choice) => {
     try {
       if (!address) {
-        throw new Error("Please connect your wallet")
+        setVoteStatus("Please connect Farcaster wallet")
+        return
       }
 
       setVoteStatus("Preparing vote...")
+      console.log("Vote attempt:", { battleId, choice, wallet: "Farcaster" })
 
-      const { request } = await publicClient.simulateContract({
-        address: MEME_BATTLES_CONTRACT.address,
+      // Encode with proper types for Farcaster
+      const data = encodeFunctionData({
         abi: MEME_BATTLES_CONTRACT.abi,
         functionName: "vote",
-        args: [battleId, choice],
-        account: address,
+        args: [BigInt(battleId), BigInt(choice)]
       })
 
-      sendTransaction(request)
+      // Farcaster-optimized transaction parameters
+      sendTransaction({
+        to: MEME_BATTLES_CONTRACT.address,
+        data,
+        value: BigInt(0),
+        gas: BigInt(150000), // Lower gas limit for Farcaster
+        maxFeePerGas: parseGwei("0.05"),
+        maxPriorityFeePerGas: parseGwei("0.01")
+      })
+
     } catch (error) {
-      console.error("Vote error:", error)
-      setVoteStatus(`❌ ${error.message || "Failed to vote"}`)
+      console.error("Farcaster vote error:", error)
+      setVoteStatus(`❌ ${error?.message || "Vote failed"}`)
     }
   }
 
-  // Add effect to handle transaction states
+  // Add Farcaster-specific transaction monitoring
   useEffect(() => {
     if (isPending) {
-      setVoteStatus("Waiting for wallet confirmation...")
+      setVoteStatus("Confirm in Farcaster...")
     }
     if (isConfirming) {
-      setVoteStatus("Vote confirming on Base...")
+      setVoteStatus("Confirming on Base...")
     }
     if (isConfirmed) {
-      setVoteStatus("✅ Vote successful!")
+      setVoteStatus("✅ Vote confirmed!")
       fetchBattles()
       setTimeout(() => setVoteStatus(""), 3000)
     }
     if (txError) {
-      // Handle error without type assertion
-      const errorMessage = txError?.shortMessage || txError?.message || "Transaction failed"
-      setVoteStatus(`❌ ${errorMessage}`)
+      const errorMsg = txError?.message || "Transaction failed"
+      console.error("Farcaster error:", txError)
+      setVoteStatus(`❌ ${errorMsg}`)
     }
-  }, [isPending, isConfirming, isConfirmed, txError]);
+  }, [isPending, isConfirming, isConfirmed, txError])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900">
