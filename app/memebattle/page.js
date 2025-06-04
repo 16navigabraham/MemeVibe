@@ -9,6 +9,7 @@ import {
   useWaitForTransactionReceipt,
   usePublicClient 
 } from "wagmi";
+import { Navbar } from "@/components/navbar"; // Make sure this path is correct
 import { MEME_BATTLES_CONTRACT } from "@/lib/contract";
 import { parseGwei, encodeFunctionData } from "viem";
 
