@@ -7,7 +7,8 @@ import { Eye, EyeOff, Save, Lock, Swords } from "lucide-react"
 import { 
   useSendTransaction, 
   useWaitForTransactionReceipt,
-  useAccount 
+  useAccount,
+  usePublicClient 
 } from "wagmi"
 import { MEME_BATTLES_CONTRACT } from "@/lib/contract"
 import { parseGwei, parseEther, encodeFunctionData } from "viem"
@@ -42,6 +43,9 @@ export default function AdminPage() {
   } = useWaitForTransactionReceipt({
     hash,
   })
+
+  // Add publicClient
+  const publicClient = usePublicClient()
 
   // Existing login handler
   const handleLogin = (e) => {
@@ -86,45 +90,46 @@ export default function AdminPage() {
     }
 
     try {
-      setBattleStatus("Creating battle...")
+      setBattleStatus("Preparing transaction...")
 
-      // Encode the function data
+      // Encode function data
       const data = encodeFunctionData({
         abi: MEME_BATTLES_CONTRACT.abi,
         functionName: "createBattle",
         args: [castA, castB],
       })
 
-      // Send transaction using new hook
+      // Send transaction
       sendTransaction({
         to: MEME_BATTLES_CONTRACT.address,
         data,
-        value: parseEther("0"),
-        gas: BigInt(300000), // Estimated gas limit
+        gas: BigInt(300000), // Fixed gas limit
         maxFeePerGas: parseGwei("0.1"),
-        maxPriorityFeePerGas: parseGwei("0.1"),
+        maxPriorityFeePerGas: parseGwei("0.01"),
       })
     } catch (error) {
       console.error("Battle creation error:", error)
-      setBattleStatus(`❌ ${error.message || "Failed to create battle"}`)
+      setBattleStatus(`❌ ${error?.message || "Failed to create battle"}`)
     }
   }
 
-  // Add transaction status effect
+  // Update transaction status effect
   useEffect(() => {
     if (isPending) {
-      setBattleStatus("Waiting for confirmation...")
+      setBattleStatus("Waiting for wallet confirmation...")
     }
     if (isConfirming) {
-      setBattleStatus("Transaction confirming...")
+      setBattleStatus("Transaction confirming on Base...")
     }
     if (isConfirmed) {
       setBattleStatus("✅ Battle created successfully!")
       setCastA("")
       setCastB("")
+      setTimeout(() => setBattleStatus(""), 3000)
     }
     if (txError) {
-      setBattleStatus(`❌ ${txError.message || "Transaction failed"}`)
+      const errorMessage = txError?.message || "Transaction failed"
+      setBattleStatus(`❌ ${errorMessage}`)
     }
   }, [isPending, isConfirming, isConfirmed, txError])
 

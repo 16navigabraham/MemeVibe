@@ -1,10 +1,10 @@
-import { createConfig } from '@wagmi/core';
-import { base } from 'viem/chains';
-import { http } from 'viem';
+import { createConfig } from 'wagmi'
+import { base } from 'wagmi/chains'
+import { http } from 'viem'
 
 export const config = createConfig({
   chains: [base],
   transports: {
-    [base.id]: http(), // or your RPC provider
+    [base.id]: http('https://mainnet.base.org'),
   },
-});
+})

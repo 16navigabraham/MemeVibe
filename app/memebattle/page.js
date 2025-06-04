@@ -113,52 +113,43 @@ export default function MemeBattlePage() {
   const handleVote = async (battleId, choice) => {
     try {
       if (!address) {
-        throw new Error("Please connect your wallet");
+        throw new Error("Please connect your wallet")
       }
 
-      setVoteStatus("Preparing transaction...");
+      setVoteStatus("Preparing vote...")
 
-      // Encode the vote function call
-      const data = encodeFunctionData({
+      const { request } = await publicClient.simulateContract({
+        address: MEME_BATTLES_CONTRACT.address,
         abi: MEME_BATTLES_CONTRACT.abi,
         functionName: "vote",
         args: [battleId, choice],
+        account: address,
       })
 
-      // Send transaction using new hook
-      sendTransaction({
-        to: MEME_BATTLES_CONTRACT.address,
-        data,
-        value: parseGwei("0"),
-        gas: BigInt(150000), // Reduced gas limit
-        maxFeePerGas: parseGwei("0.1"),
-        maxPriorityFeePerGas: parseGwei("0.01"),
-      })
-
+      sendTransaction(request)
     } catch (error) {
-      console.error("Voting error:", error);
-      setVoteStatus(`❌ ${error.message || "Failed to vote"}`);
+      console.error("Vote error:", error)
+      setVoteStatus(`❌ ${error.message || "Failed to vote"}`)
     }
-  };
+  }
 
   // Add effect to handle transaction states
   useEffect(() => {
     if (isPending) {
-      setVoteStatus("Waiting for confirmation...");
+      setVoteStatus("Waiting for wallet confirmation...")
     }
     if (isConfirming) {
-      setVoteStatus("Vote confirming...");
+      setVoteStatus("Vote confirming on Base...")
     }
     if (isConfirmed) {
-      setVoteStatus("✅ Vote successful!");
-      fetchBattles(); // Refresh battles after successful vote
+      setVoteStatus("✅ Vote successful!")
+      fetchBattles()
+      setTimeout(() => setVoteStatus(""), 3000)
     }
     if (txError) {
-      if (txError.message?.includes("insufficient funds")) {
-        setVoteStatus("❌ Insufficient BASE. Get BASE tokens from bridge.base.org");
-      } else {
-        setVoteStatus(`❌ ${txError.message || "Transaction failed"}`);
-      }
+      // Handle error without type assertion
+      const errorMessage = txError?.shortMessage || txError?.message || "Transaction failed"
+      setVoteStatus(`❌ ${errorMessage}`)
     }
   }, [isPending, isConfirming, isConfirmed, txError]);
 
