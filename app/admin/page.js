@@ -2,13 +2,13 @@
 
 import { useState } from "react"
 import { Navbar } from "@/components/navbar"
-import { Lock, Swords } from "lucide-react"
-import { MEME_BATTLES_CONTRACT } from "@/lib/contract"
+import { updateApiCredentials, getApiCredentials } from "@/lib/api"
+import { Eye, EyeOff, Save, Lock, Swords } from "lucide-react"
 import { useWalletClient } from "wagmi"
-
-const ADMIN_PASSWORD = "asJrA.61271895$" // Move password directly into code
+import { MEME_BATTLES_CONTRACT } from "@/lib/contract"
 
 export default function AdminPage() {
+  // Existing states
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -16,29 +16,36 @@ export default function AdminPage() {
   const [apiPassword, setApiPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [successMessage, setSuccessMessage] = useState("")
+
+  // New states for battle creation
   const [castA, setCastA] = useState("")
   const [castB, setCastB] = useState("")
-  const [createStatus, setCreateStatus] = useState("")
+  const [battleStatus, setBattleStatus] = useState("")
+
+  // Get wallet client for contract interaction
   const { data: walletClient } = useWalletClient()
 
+  // Existing login handler
   const handleLogin = (e) => {
     e.preventDefault()
-    if (password === ADMIN_PASSWORD) {
+    if (password === "asJrA.61271895$") {
       setIsAuthenticated(true)
       setError("")
+      const credentials = getApiCredentials()
+      setUsername(credentials.username)
+      setApiPassword(credentials.password)
     } else {
       setError("Invalid password")
     }
   }
 
+  // Existing credentials update handler
   const handleUpdateCredentials = (e) => {
     e.preventDefault()
-
     if (!username || !apiPassword) {
       setError("Both username and password are required")
       return
     }
-
     try {
       updateApiCredentials(username, apiPassword)
       setSuccessMessage("API credentials updated successfully")
@@ -48,19 +55,21 @@ export default function AdminPage() {
     }
   }
 
+  // New battle creation handler
   const handleCreateBattle = async (e) => {
     e.preventDefault()
     if (!walletClient) {
-      setCreateStatus("Please connect your wallet")
+      setBattleStatus("Please connect your wallet")
       return
     }
     if (!castA || !castB) {
-      setCreateStatus("Please fill both cast links")
+      setBattleStatus("Please fill both cast links")
       return
     }
 
     try {
-      setCreateStatus("Creating battle...")
+      setBattleStatus("Creating battle...")
+
       const tx = await walletClient.writeContract({
         address: MEME_BATTLES_CONTRACT.address,
         abi: MEME_BATTLES_CONTRACT.abi,
@@ -69,12 +78,12 @@ export default function AdminPage() {
       })
 
       await tx.wait()
-      setCreateStatus("✅ Battle created successfully!")
+      setBattleStatus("✅ Battle created successfully!")
       setCastA("")
       setCastB("")
     } catch (error) {
       console.error("Battle creation error:", error)
-      setCreateStatus("❌ Failed to create battle")
+      setBattleStatus(`❌ ${error.message || "Failed to create battle"}`)
     }
   }
 
@@ -122,7 +131,7 @@ export default function AdminPage() {
           </div>
         ) : (
           <div className="max-w-md mx-auto space-y-8">
-            {/* Existing API credentials form */}
+            {/* API Credentials Form */}
             <div className="bg-white p-8 rounded-lg shadow-md">
               <h2 className="text-2xl font-semibold mb-6">Update API Credentials</h2>
 
@@ -184,6 +193,7 @@ export default function AdminPage() {
               </form>
             </div>
 
+            {/* Battle Creation Form */}
             <div className="bg-white p-8 rounded-lg shadow-md">
               <h2 className="text-2xl font-semibold mb-6">Create New Battle</h2>
               <form onSubmit={handleCreateBattle}>
@@ -217,11 +227,13 @@ export default function AdminPage() {
                   />
                 </div>
 
-                {createStatus && (
-                  <div className={`mb-4 text-sm ${
-                    createStatus.includes("✅") ? "text-green-500" : "text-red-500"
-                  }`}>
-                    {createStatus}
+                {battleStatus && (
+                  <div
+                    className={`mb-4 text-sm ${
+                      battleStatus.includes("✅") ? "text-green-500" : "text-red-500"
+                    }`}
+                  >
+                    {battleStatus}
                   </div>
                 )}
 
