@@ -12,6 +12,7 @@ import {
 } from "wagmi"
 import { MEME_BATTLES_CONTRACT } from "@/lib/contract"
 import { parseGwei, encodeFunctionData } from "viem"
+import { farcaster } from "@/lib/wagmi"
 
 export default function AdminPage() {
   // Existing states
@@ -29,7 +30,7 @@ export default function AdminPage() {
   const [battleStatus, setBattleStatus] = useState("")
 
   // Replace useWalletClient with new hooks
-  const { address } = useAccount()
+  const { address, connector, isConnected } = useAccount()
   const { 
     data: hash,
     error: txError,
@@ -77,9 +78,22 @@ export default function AdminPage() {
     }
   }
 
+  // Add connect handler for Farcaster
+  const handleConnect = async () => {
+    try {
+      await farcaster.connect()
+    } catch (err) {
+      setBattleStatus("❌ Failed to connect Farcaster")
+    }
+  }
+
   // Update battle creation handler - simplified for Farcaster
   const handleCreateBattle = async (e) => {
     e.preventDefault()
+    if (!isConnected) {
+      setBattleStatus("❌ Connector not connected.")
+      return
+    }
     if (!castA || !castB) {
       setBattleStatus("Please fill both cast links")
       return
@@ -235,6 +249,15 @@ export default function AdminPage() {
             {/* Battle Creation Form */}
             <div className="bg-white p-8 rounded-lg shadow-md">
               <h2 className="text-2xl font-semibold mb-6">Create New Battle</h2>
+              {!isConnected ? (
+                <button
+                  type="button"
+                  onClick={handleConnect}
+                  className="w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition-colors mb-4"
+                >
+                  Connect Farcaster
+                </button>
+              ) : null}
               <form onSubmit={handleCreateBattle}>
                 <div className="mb-4">
                   <label htmlFor="castA" className="block text-sm font-medium text-gray-700 mb-1">

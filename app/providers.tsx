@@ -1,17 +1,8 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { WagmiProvider, createConfig } from "wagmi";
+import { WagmiProvider } from "wagmi";
+import { config } from "@/lib/wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { base } from "wagmi/chains";
-import { injected } from "wagmi/connectors";
-import { http, createPublicClient } from "viem";
-
-const config = createConfig({
-  chains: [base],
-  connectors: [injected()],
-  client: ({ chain }) => createPublicClient({ transport: http(chain.rpcUrls.default.http[0]) }),
-});
 
 const queryClient = new QueryClient();
 

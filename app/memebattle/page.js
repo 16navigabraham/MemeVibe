@@ -13,13 +13,15 @@ import {
 import { Navbar } from "@/components/navbar";
 import { MEME_BATTLES_CONTRACT } from "@/lib/contract";
 import { parseGwei, encodeFunctionData } from "viem";
+import { farcaster } from "@/lib/wagmi"
 
 export default function MemeBattlePage() {
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
   const publicClient = usePublicClient();
   const [battles, setBattles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [voteStatus, setVoteStatus] = useState("");
+  const [connectStatus, setConnectStatus] = useState("");
 
   const { 
     data: hash,
@@ -120,8 +122,22 @@ export default function MemeBattlePage() {
     fetchBattles();
   }, [publicClient]);
 
+  // Add connect handler for Farcaster
+  const handleConnect = async () => {
+    try {
+      await farcaster.connect()
+      setConnectStatus("")
+    } catch (err) {
+      setConnectStatus("❌ Failed to connect Farcaster")
+    }
+  }
+
   // Update handleVote function - simplified for Farcaster
   const handleVote = async (battleId, choice) => {
+    if (!isConnected) {
+      setVoteStatus("❌ Connector not connected.")
+      return
+    }
     try {
       setVoteStatus("Preparing vote...")
 
@@ -192,6 +208,18 @@ export default function MemeBattlePage() {
               </div>
             ) : (
               <div className="max-w-2xl mx-auto space-y-6 mt-8 w-full">
+                {!isConnected ? (
+                  <button
+                    type="button"
+                    onClick={handleConnect}
+                    className="w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition-colors mb-4"
+                  >
+                    Connect Farcaster
+                  </button>
+                ) : null}
+                {connectStatus && (
+                  <div className="mb-4 text-red-500 text-sm">{connectStatus}</div>
+                )}
                 {battles.map((battle) => (
                   <div
                     key={battle.id}
