@@ -6,6 +6,8 @@ import { Lock, Swords } from "lucide-react"
 import { MEME_BATTLES_CONTRACT } from "@/lib/contract"
 import { useWalletClient } from "wagmi"
 
+const ADMIN_PASSWORD = "asJrA.61271895$" // Move password directly into code
+
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState("")
@@ -21,26 +23,12 @@ export default function AdminPage() {
 
   const handleLogin = (e) => {
     e.preventDefault()
-    // Trim the password to remove any whitespace
-    const cleanPassword = password.trim()
-    const expectedPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD?.trim()
-
-    if (cleanPassword === expectedPassword) {
+    if (password === ADMIN_PASSWORD) {
       setIsAuthenticated(true)
       setError("")
     } else {
       setError("Invalid password")
-      console.log("Password check failed:", {
-        entered: cleanPassword.length,
-        expected: expectedPassword?.length
-      })
     }
-
-    console.log("Password comparison:", {
-      entered: cleanPassword,
-      expected: expectedPassword,
-      match: cleanPassword === expectedPassword
-    })
   }
 
   const handleUpdateCredentials = (e) => {
