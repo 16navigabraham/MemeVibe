@@ -108,7 +108,6 @@ export default function AdminPage() {
         args: [castA, castB],
       })
 
-      // Simplified transaction call for Farcaster
       sendTransaction({
         to: MEME_BATTLES_CONTRACT.address,
         data,
@@ -116,8 +115,7 @@ export default function AdminPage() {
       })
 
     } catch (error) {
-      console.error("Battle creation error:", error)
-      setBattleStatus(`❌ ${error?.message || "Failed to create battle"}`)
+      setBattleStatus(`❌ ${error?.shortMessage || error?.message || "Failed to create battle"}`)
     }
   }
 
@@ -136,7 +134,7 @@ export default function AdminPage() {
       setTimeout(() => setBattleStatus(""), 3000)
     }
     if (txError) {
-      setBattleStatus(`❌ ${txError?.message || "Failed to create battle"}`)
+      setBattleStatus(`❌ ${txError?.shortMessage || txError?.message || "Failed to create battle"}`)
     }
   }, [isPending, isConfirming, isConfirmed, txError])
 

@@ -22,6 +22,7 @@ export default function MemeBattlePage() {
   const [loading, setLoading] = useState(true);
   const [voteStatus, setVoteStatus] = useState("");
   const [connectStatus, setConnectStatus] = useState("");
+  const [votedBattles, setVotedBattles] = useState({}); // battleId: true
 
   const { 
     data: hash,
@@ -37,6 +38,7 @@ export default function MemeBattlePage() {
     hash,
   })
 
+  // Fetch battles and check if user has voted
   const fetchBattles = async () => {
     try {
       setLoading(true);
@@ -63,6 +65,7 @@ export default function MemeBattlePage() {
 
       // Fetch battles with error handling
       const battles = [];
+      const voted = {};
       for (let i = 1; i <= Number(battleCount); i++) {
         try {
           const battle = await publicClient.readContract({
@@ -71,7 +74,21 @@ export default function MemeBattlePage() {
             functionName: "getBattle",
             args: [i],
           });
-          
+          // Check if user has voted in this battle
+          let hasVoted = false;
+          if (address) {
+            try {
+              hasVoted = await publicClient.readContract({
+                address: MEME_BATTLES_CONTRACT.address,
+                abi: MEME_BATTLES_CONTRACT.abi,
+                functionName: "hasVoted",
+                args: [i, address],
+              });
+            } catch (e) {
+              // fallback: ignore if method doesn't exist
+            }
+          }
+          if (hasVoted) voted[i] = true;
           battles.push({
             id: i,
             castA: battle.castA,
@@ -93,6 +110,7 @@ export default function MemeBattlePage() {
         .sort((a, b) => b.createdAt - a.createdAt);
 
       setBattles(sortedBattles);
+      setVotedBattles(voted);
     } catch (error) {
       console.error("Error in fetchBattles:", error);
     } finally {
@@ -138,6 +156,10 @@ export default function MemeBattlePage() {
       setVoteStatus("❌ Connector not connected.")
       return
     }
+    if (votedBattles[battleId]) {
+      setVoteStatus("❌ You have already voted in this battle.")
+      return
+    }
     try {
       setVoteStatus("Preparing vote...")
 
@@ -147,7 +169,6 @@ export default function MemeBattlePage() {
         args: [BigInt(battleId), BigInt(choice)]
       })
 
-      // Simplified transaction call for Farcaster
       sendTransaction({
         to: MEME_BATTLES_CONTRACT.address,
         data,
@@ -155,8 +176,7 @@ export default function MemeBattlePage() {
       })
 
     } catch (error) {
-      console.error("Vote error:", error)
-      setVoteStatus(`❌ ${error?.message || "Vote failed"}`)
+      setVoteStatus(`❌ ${error?.shortMessage || error?.message || "Vote failed"}`)
     }
   }
 
@@ -174,7 +194,8 @@ export default function MemeBattlePage() {
       setTimeout(() => setVoteStatus(""), 3000)
     }
     if (txError) {
-      setVoteStatus(`❌ ${txError?.message || "Transaction failed"}`)
+      // Show contract revert reason if available
+      setVoteStatus(`❌ ${txError?.shortMessage || txError?.message || "Transaction failed"}`)
     }
   }, [isPending, isConfirming, isConfirmed, txError])
 
@@ -266,13 +287,23 @@ export default function MemeBattlePage() {
                       <div className="flex justify-center space-x-4">
                         <button
                           onClick={() => handleVote(battle.id, 1)}
-                          className="px-6 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-500 transition-colors"
+                          disabled={votedBattles[battle.id]}
+                          className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                            votedBattles[battle.id]
+                              ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                              : "bg-purple-600 text-white hover:bg-purple-500"
+                          }`}
                         >
                           Vote Cast A
                         </button>
                         <button
                           onClick={() => handleVote(battle.id, 2)}
-                          className="px-6 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-500 transition-colors"
+                          disabled={votedBattles[battle.id]}
+                          className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                            votedBattles[battle.id]
+                              ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                              : "bg-purple-600 text-white hover:bg-purple-500"
+                          }`}
                         >
                           Vote Cast B
                         </button>
