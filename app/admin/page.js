@@ -21,18 +21,19 @@ export default function AdminPage() {
 
   const handleLogin = (e) => {
     e.preventDefault()
+    // Trim the password to remove any whitespace
+    const cleanPassword = password.trim()
+    const expectedPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD?.trim()
 
-    // Check if password matches the hardcoded admin password
-    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
+    if (cleanPassword === expectedPassword) {
       setIsAuthenticated(true)
       setError("")
-
-      // Load current API credentials
-      const credentials = getApiCredentials()
-      setUsername(credentials.username)
-      setApiPassword(credentials.password)
     } else {
       setError("Invalid password")
+      console.log("Password check failed:", {
+        entered: cleanPassword.length,
+        expected: expectedPassword?.length
+      })
     }
   }
 
