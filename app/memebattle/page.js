@@ -23,6 +23,10 @@ export default function MemeBattlePage() {
   const [voteStatus, setVoteStatus] = useState("");
   const [connectStatus, setConnectStatus] = useState("");
   const [votedBattles, setVotedBattles] = useState({}); // battleId: true
+  const [showHistory, setShowHistory] = useState(false);
+  const [historySort, setHistorySort] = useState("recent"); // "recent" | "votes" | "closest"
+  const [endedBattles, setEndedBattles] = useState([]);
+  const [audio] = useState(() => (typeof window !== "undefined" ? new Audio("/celebrate.mp3") : null));
 
   const { 
     data: hash,
@@ -65,6 +69,7 @@ export default function MemeBattlePage() {
 
       // Fetch battles with error handling
       const battles = [];
+      const ended = [];
       const voted = {};
       for (let i = 1; i <= Number(battleCount); i++) {
         try {
@@ -89,7 +94,7 @@ export default function MemeBattlePage() {
             }
           }
           if (hasVoted) voted[i] = true;
-          battles.push({
+          const battleObj = {
             id: i,
             castA: battle.castA,
             castB: battle.castB,
@@ -97,7 +102,12 @@ export default function MemeBattlePage() {
             votesB: Number(battle.votesB),
             isActive: battle.isActive,
             createdAt: Number(battle.createdAt)
-          });
+          };
+          if (battleObj.isActive) {
+            battles.push(battleObj);
+          } else {
+            ended.push(battleObj);
+          }
         } catch (error) {
           console.error(`Error fetching battle ${i}:`, error);
           continue;
@@ -111,6 +121,7 @@ export default function MemeBattlePage() {
 
       setBattles(sortedBattles);
       setVotedBattles(voted);
+      setEndedBattles(ended);
     } catch (error) {
       console.error("Error in fetchBattles:", error);
     } finally {
@@ -201,6 +212,54 @@ export default function MemeBattlePage() {
     }
   }, [isPending, isConfirming, isConfirmed, txError])
 
+  // Surprise Me: Jump to a random active battle
+  const handleSurpriseMe = async () => {
+    if (battles.length === 0) return;
+    const idx = Math.floor(Math.random() * battles.length);
+    const el = document.getElementById(`battle-${battles[idx].id}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      const confetti = (await import("canvas-confetti")).default;
+      confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+      if (audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
+    }
+  };
+
+  // Share: Pre-fill Farcaster/Twitter message
+  const handleShare = async (battle) => {
+    const url = typeof window !== "undefined" ? window.location.origin + "#battle-" + battle.id : "";
+    const text = `🔥 Meme Battle! Vote now:\nCast A: ${battle.castA}\nCast B: ${battle.castB}\n${url}`;
+    const farcasterUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`;
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+    window.open(farcasterUrl, "_blank");
+    const confetti = (await import("canvas-confetti")).default;
+    confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 } });
+    if (audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
+  };
+
+  // Fun animation on vote or battle end
+  useEffect(() => {
+    if (voteStatus.startsWith("✅")) {
+      (async () => {
+        const confetti = (await import("canvas-confetti")).default;
+        confetti({ particleCount: 100, spread: 90, origin: { y: 0.7 } });
+        if (audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
+      })();
+    }
+  }, [voteStatus, audio]);
+
+  // Sort ended battles for history
+  const sortedEndedBattles = [...endedBattles].sort((a, b) => {
+    if (historySort === "votes") {
+      return (b.votesA + b.votesB) - (a.votesA + a.votesB);
+    }
+    if (historySort === "closest") {
+      return Math.abs(a.votesA - a.votesB) - Math.abs(b.votesA - b.votesB);
+    }
+    // recent
+    return b.createdAt - a.createdAt;
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900">
       <Navbar />
@@ -209,7 +268,43 @@ export default function MemeBattlePage() {
           <h1 className="text-4xl font-bold text-white tracking-wider mb-8">
             🔥 MEME BATTLES 🔥
           </h1>
-
+          {/* Surprise Me Button */}
+          <button
+            onClick={handleSurpriseMe}
+            className="mb-4 px-6 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg shadow transition-all"
+          >
+            🎲 Surprise Me!
+          </button>
+          {/* Toggle History */}
+          <button
+            onClick={() => setShowHistory((v) => !v)}
+            className="mb-4 px-6 py-2 bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-lg shadow transition-all"
+          >
+            {showHistory ? "🔙 Back to Battles" : "📜 View Battle History"}
+          </button>
+          {/* History Sort Options */}
+          {showHistory && (
+            <div className="mb-4 flex gap-2">
+              <button
+                className={`px-3 py-1 rounded ${historySort === "recent" ? "bg-purple-700 text-white" : "bg-gray-300 text-gray-700"}`}
+                onClick={() => setHistorySort("recent")}
+              >
+                Recent
+              </button>
+              <button
+                className={`px-3 py-1 rounded ${historySort === "votes" ? "bg-purple-700 text-white" : "bg-gray-300 text-gray-700"}`}
+                onClick={() => setHistorySort("votes")}
+              >
+                Most Voted
+              </button>
+              <button
+                className={`px-3 py-1 rounded ${historySort === "closest" ? "bg-purple-700 text-white" : "bg-gray-300 text-gray-700"}`}
+                onClick={() => setHistorySort("closest")}
+              >
+                Closest
+              </button>
+            </div>
+          )}
           {/* Submit Button */}
           <a
             href="https://forms.gle/pHtC1AX8y88vYbBc9"
@@ -228,6 +323,86 @@ export default function MemeBattlePage() {
             {loading ? (
               <div className="text-center py-12">
                 <p className="text-white">Loading meme battles...</p>
+              </div>
+            ) : showHistory ? (
+              <div className="max-w-2xl mx-auto space-y-6 mt-8 w-full">
+                {sortedEndedBattles.length === 0 && (
+                  <div className="text-center text-purple-200 py-8">No finished battles yet.</div>
+                )}
+                {sortedEndedBattles.map((battle) => {
+                  // Calculate vote percentages
+                  const totalVotes = battle.votesA + battle.votesB;
+                  const percentA = totalVotes === 0 ? 50 : Math.round((battle.votesA / totalVotes) * 100);
+                  const percentB = totalVotes === 0 ? 50 : 100 - percentA;
+                  const castAWins = battle.votesA > battle.votesB;
+                  const castBWins = battle.votesB > battle.votesA;
+                  return (
+                    <div
+                      key={battle.id}
+                      id={`battle-${battle.id}`}
+                      className="bg-purple-900/60 rounded-xl shadow-lg p-6 border border-purple-500/30"
+                    >
+                      <div className="flex justify-between text-xs text-purple-300 mb-2">
+                        <span>Battle #{battle.id}</span>
+                        <span>{formatDistanceToNow(new Date(battle.createdAt * 1000))} ago</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <a href={battle.castA} target="_blank" className="text-purple-200 underline">Cast A</a>
+                        </div>
+                        <div>
+                          <a href={battle.castB} target="_blank" className="text-purple-200 underline">Cast B</a>
+                        </div>
+                      </div>
+                      <div className="flex justify-between text-xs font-semibold mb-1 text-purple-100">
+                        <span>Cast A: {battle.votesA}</span>
+                        <span>Cast B: {battle.votesB}</span>
+                      </div>
+                      <div className="w-full h-5 bg-gray-700 rounded-full flex overflow-hidden mb-2">
+                        <div
+                          className={`h-full flex items-center justify-end transition-all duration-300 ${
+                            castAWins
+                              ? "bg-green-500"
+                              : "bg-gray-400"
+                          }`}
+                          style={{ width: `${percentA}%` }}
+                        >
+                          {percentA > 10 && (
+                            <span className="text-xs text-white px-2">{percentA}%</span>
+                          )}
+                        </div>
+                        <div
+                          className={`h-full flex items-center justify-start transition-all duration-300 ${
+                            castBWins
+                              ? "bg-green-500"
+                              : "bg-gray-400"
+                          }`}
+                          style={{ width: `${percentB}%` }}
+                        >
+                          {percentB > 10 && (
+                            <span className="text-xs text-white px-2">{percentB}%</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex justify-between text-xs mt-2">
+                        <span>
+                          Winner:{" "}
+                          {battle.votesA === battle.votesB
+                            ? "Tie"
+                            : battle.votesA > battle.votesB
+                            ? "Cast A"
+                            : "Cast B"}
+                        </span>
+                        <button
+                          onClick={() => handleShare(battle)}
+                          className="text-green-300 hover:text-green-500 underline"
+                        >
+                          Share
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div className="max-w-2xl mx-auto space-y-6 mt-8 w-full">
@@ -253,6 +428,7 @@ export default function MemeBattlePage() {
                   return (
                     <div
                       key={battle.id}
+                      id={`battle-${battle.id}`}
                       className="bg-purple-800/50 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-purple-500/30 hover:border-purple-500/50 transition-all"
                     >
                       <div className="text-sm text-purple-200 mb-4">
@@ -351,6 +527,14 @@ export default function MemeBattlePage() {
                           </div>
                         </div>
                       </div>
+                      <div className="flex justify-end mb-2">
+                        <button
+                          onClick={() => handleShare(battle)}
+                          className="text-green-300 hover:text-green-500 underline text-xs"
+                        >
+                          Share
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
@@ -359,6 +543,8 @@ export default function MemeBattlePage() {
           </div>
         </div>
       </div>
+      {/* Confetti canvas is handled by canvas-confetti */}
+      {/* Sound file /celebrate.mp3 should be placed in public/ */}
     </div>
   );
 }
