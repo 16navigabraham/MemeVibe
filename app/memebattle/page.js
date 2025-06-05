@@ -175,6 +175,8 @@ export default function MemeBattlePage() {
         value: BigInt(0)
       })
 
+      // Optimistically update votedBattles state
+      setVotedBattles(prev => ({ ...prev, [battleId]: true }))
     } catch (error) {
       setVoteStatus(`❌ ${error?.shortMessage || error?.message || "Vote failed"}`)
     }
@@ -241,76 +243,117 @@ export default function MemeBattlePage() {
                 {connectStatus && (
                   <div className="mb-4 text-red-500 text-sm">{connectStatus}</div>
                 )}
-                {battles.map((battle) => (
-                  <div
-                    key={battle.id}
-                    className="bg-purple-800/50 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-purple-500/30 hover:border-purple-500/50 transition-all"
-                  >
-                    <div className="text-sm text-purple-200 mb-4">
-                      Started {formatDistanceToNow(new Date(battle.createdAt * 1000))} ago
-                    </div>
-                    
-                    {/* Battle Content */}
-                    <div className="grid grid-cols-2 gap-4 mb-6">
-                      <div className="space-y-2">
-                        <p className="text-purple-200 font-semibold">Cast A</p>
-                        <a
-                          href={battle.castA}
-                          target="_blank"
-                          className="inline-flex items-center text-purple-300 hover:text-purple-100 transition-colors"
-                        >
-                          <span>View Cast</span>
-                          <span className="ml-1">→</span>
-                        </a>
+                {battles.map((battle) => {
+                  // Calculate vote percentages
+                  const totalVotes = battle.votesA + battle.votesB;
+                  const percentA = totalVotes === 0 ? 50 : Math.round((battle.votesA / totalVotes) * 100);
+                  const percentB = totalVotes === 0 ? 50 : 100 - percentA;
+                  const castAWins = battle.votesA > battle.votesB;
+                  const castBWins = battle.votesB > battle.votesA;
+                  return (
+                    <div
+                      key={battle.id}
+                      className="bg-purple-800/50 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-purple-500/30 hover:border-purple-500/50 transition-all"
+                    >
+                      <div className="text-sm text-purple-200 mb-4">
+                        Started {formatDistanceToNow(new Date(battle.createdAt * 1000))} ago
                       </div>
-                      <div className="space-y-2">
-                        <p className="text-purple-200 font-semibold">Cast B</p>
-                        <a
-                          href={battle.castB}
-                          target="_blank"
-                          className="inline-flex items-center text-purple-300 hover:text-purple-100 transition-colors"
-                        >
-                          <span>View Cast</span>
-                          <span className="ml-1">→</span>
-                        </a>
+                      
+                      {/* Battle Content */}
+                      <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div className="space-y-2">
+                          <p className="text-purple-200 font-semibold">Cast A</p>
+                          <a
+                            href={battle.castA}
+                            target="_blank"
+                            className="inline-flex items-center text-purple-300 hover:text-purple-100 transition-colors"
+                          >
+                            <span>View Cast</span>
+                            <span className="ml-1">→</span>
+                          </a>
+                        </div>
+                        <div className="space-y-2">
+                          <p className="text-purple-200 font-semibold">Cast B</p>
+                          <a
+                            href={battle.castB}
+                            target="_blank"
+                            className="inline-flex items-center text-purple-300 hover:text-purple-100 transition-colors"
+                          >
+                            <span>View Cast</span>
+                            <span className="ml-1">→</span>
+                          </a>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Vote Section */}
-                    {Date.now() / 1000 > battle.createdAt + 7 * 24 * 3600 ? (
-                      <div className="text-center bg-purple-700/50 rounded-lg p-3">
-                        <p className="text-purple-100 font-bold">
-                          Battle Ended • A: {battle.votesA} | B: {battle.votesB}
-                        </p>
+                      {/* Vote Section */}
+                      {Date.now() / 1000 > battle.createdAt + 7 * 24 * 3600 ? (
+                        <div className="text-center bg-purple-700/50 rounded-lg p-3">
+                          <p className="text-purple-100 font-bold">
+                            Battle Ended • A: {battle.votesA} | B: {battle.votesB}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="flex justify-center space-x-4">
+                          <button
+                            onClick={() => handleVote(battle.id, 1)}
+                            disabled={votedBattles[battle.id]}
+                            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                              votedBattles[battle.id]
+                                ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                                : "bg-purple-600 text-white hover:bg-purple-500"
+                            }`}
+                          >
+                            Vote Cast A
+                          </button>
+                          <button
+                            onClick={() => handleVote(battle.id, 2)}
+                            disabled={votedBattles[battle.id]}
+                            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                              votedBattles[battle.id]
+                                ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                                : "bg-purple-600 text-white hover:bg-purple-500"
+                            }`}
+                          >
+                            Vote Cast B
+                          </button>
+                        </div>
+                      )}
+                      {/* Vote Result Bar */}
+                      <div className="mt-6">
+                        <div className="flex justify-between text-xs font-semibold mb-1 text-purple-100">
+                          <span>Cast A: {battle.votesA}</span>
+                          <span>Cast B: {battle.votesB}</span>
+                        </div>
+                        <div className="w-full h-5 bg-gray-700 rounded-full flex overflow-hidden">
+                          <div
+                            className={`h-full flex items-center justify-end transition-all duration-300 ${
+                              castAWins
+                                ? "bg-green-500"
+                                : "bg-gray-400"
+                            }`}
+                            style={{ width: `${percentA}%` }}
+                          >
+                            {percentA > 10 && (
+                              <span className="text-xs text-white px-2">{percentA}%</span>
+                            )}
+                          </div>
+                          <div
+                            className={`h-full flex items-center justify-start transition-all duration-300 ${
+                              castBWins
+                                ? "bg-green-500"
+                                : "bg-gray-400"
+                            }`}
+                            style={{ width: `${percentB}%` }}
+                          >
+                            {percentB > 10 && (
+                              <span className="text-xs text-white px-2">{percentB}%</span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    ) : (
-                      <div className="flex justify-center space-x-4">
-                        <button
-                          onClick={() => handleVote(battle.id, 1)}
-                          disabled={votedBattles[battle.id]}
-                          className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                            votedBattles[battle.id]
-                              ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                              : "bg-purple-600 text-white hover:bg-purple-500"
-                          }`}
-                        >
-                          Vote Cast A
-                        </button>
-                        <button
-                          onClick={() => handleVote(battle.id, 2)}
-                          disabled={votedBattles[battle.id]}
-                          className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                            votedBattles[battle.id]
-                              ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                              : "bg-purple-600 text-white hover:bg-purple-500"
-                          }`}
-                        >
-                          Vote Cast B
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
