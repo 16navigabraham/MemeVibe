@@ -14,6 +14,7 @@ import { Navbar } from "@/components/navbar";
 import { MEME_BATTLES_CONTRACT } from "@/lib/contract";
 import { parseGwei, encodeFunctionData } from "viem";
 import { farcaster } from "@/lib/wagmi"
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function MemeBattlePage() {
   const { address, isConnected } = useAccount();
@@ -27,6 +28,9 @@ export default function MemeBattlePage() {
   const [historySort, setHistorySort] = useState("recent"); // "recent" | "votes" | "closest"
   const [endedBattles, setEndedBattles] = useState([]);
   const [audio] = useState(() => (typeof window !== "undefined" ? new Audio("/celebrate.mp3") : null));
+  const searchParams = typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search)
+    : null;
 
   const { 
     data: hash,
@@ -227,15 +231,30 @@ export default function MemeBattlePage() {
 
   // Share: Pre-fill Farcaster/Twitter message
   const handleShare = async (battle) => {
-    const url = typeof window !== "undefined" ? window.location.origin + "#battle-" + battle.id : "";
-    const text = `🔥 Meme Battle! Vote now:\nCast A: ${battle.castA}\nCast B: ${battle.castB}\n${url}`;
+    // Use only the Farcaster miniapp URL, mention the battle number in the message
+    const miniappUrl = "https://farcaster.xyz/miniapps/SE50u1CWD5fB/memevibe";
+    const text = `🔥 Meme Battle #${battle.id}! Vote now on Meme Vibe miniapp:\nCast A: ${battle.castA}\nCast B: ${battle.castB}\n${miniappUrl}\n\nOpen the app and look for Battle #${battle.id}!`;
     const farcasterUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`;
-    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
     window.open(farcasterUrl, "_blank");
     const confetti = (await import("canvas-confetti")).default;
     confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 } });
     if (audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
   };
+
+  // Scroll to battle if ?battle=ID is present in URL
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const battleId = params.get("battle");
+    if (battleId) {
+      setTimeout(() => {
+        const el = document.getElementById(`battle-${battleId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 500); // wait for DOM to render
+    }
+  }, [battles]);
 
   // Fun animation on vote or battle end
   useEffect(() => {
