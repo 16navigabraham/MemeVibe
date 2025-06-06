@@ -5,8 +5,9 @@ import { useSearchParams, useRouter } from "next/navigation"
 import Image from "next/image"
 import { Navbar } from "@/components/navbar"
 import { fetchMemeTemplates, generateMeme } from "@/lib/api"
-import { RefreshCw, Send } from "lucide-react" // Removed Share2, Download
-import { handleCastMeme } from "./handleCastMeme" // Import the handleCastMeme function
+import { RefreshCw, Send } from "lucide-react"
+import { handleCastMeme } from "./handleCastMeme"
+import { useMintMeme } from "./useMintMeme"
 
 export default function CreateMeme() {
   const searchParams = useSearchParams()
@@ -19,6 +20,18 @@ export default function CreateMeme() {
   const [generatedMeme, setGeneratedMeme] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+
+  const {
+    isConnected,
+    isConnecting,
+    ethBalance,
+    canMint,
+    mintMeme,
+    minting,
+    mintError,
+    mintSuccess,
+    connectWallet,
+  } = useMintMeme()
 
   useEffect(() => {
     const loadTemplates = async () => {
@@ -70,8 +83,6 @@ export default function CreateMeme() {
     }
   }
 
-  // Removed handleDownload and handleShare functions
-
   // Updated onCastClick function to pass the meme URL and text inputs
   const onCastClick = () => {
     if (!generatedMeme) return;
@@ -81,6 +92,16 @@ export default function CreateMeme() {
     
     // Pass both the URL and the text inputs to the handleCastMeme function
     handleCastMeme(memeUrl, textInputs);
+  }
+
+  // Mint button handler
+  const onMintClick = async () => {
+    if (!isConnected) {
+      connectWallet()
+      return
+    }
+    if (!generatedMeme) return
+    await mintMeme(generatedMeme.url)
   }
 
   return (
@@ -178,35 +199,71 @@ export default function CreateMeme() {
             <h2 className="text-xl font-semibold mb-4">Your Meme</h2>
 
             {generatedMeme ? (
-  <>
-    <div className="relative w-full h-64 mb-6 bg-gray-100 rounded-lg overflow-hidden">
-      <Image
-        src={generatedMeme.url || "/placeholder.svg?height=256&width=256"}
-        alt="Generated Meme"
-        fill
-        className="object-contain"
-      />
-    </div>
+              <>
+                <div className="relative w-full h-64 mb-6 bg-gray-100 rounded-lg overflow-hidden">
+                  <Image
+                    src={generatedMeme.url || "/placeholder.svg?height=256&width=256"}
+                    alt="Generated Meme"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
 
-    <button
-      onClick={() => router.push('/')}
-      className="w-full flex items-center justify-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md transition-colors"
-    >
-      Back to Home
-    </button>
+                <button
+                  onClick={() => router.push('/')}
+                  className="w-full flex items-center justify-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md transition-colors"
+                >
+                  Back to Home
+                </button>
 
-    <button
-      onClick={onCastClick}
-      className="w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition-colors mt-2"
-    >
-      <Send className="mr-2 h-5 w-5" />
-      Cast to Warpcast
-    </button>
-    <p className="text-sm text-gray-500 mt-4">
-      🛠️ Minting feature coming soon...
-    </p>
-  </>
-) : (
+                <button
+                  onClick={onCastClick}
+                  className="w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition-colors mt-2"
+                >
+                  <Send className="mr-2 h-5 w-5" />
+                  Cast to Warpcast
+                </button>
+
+                {/* Mint Meme Button */}
+                <button
+                  onClick={onMintClick}
+                  disabled={
+                    minting ||
+                    !isConnected && isConnecting ||
+                    !canMint ||
+                    !generatedMeme
+                  }
+                  className={`w-full flex items-center justify-center bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-md transition-colors mt-2
+                    ${minting || !canMint ? "opacity-60 cursor-not-allowed" : ""}
+                  `}
+                >
+                  {minting
+                    ? "Minting..."
+                    : !isConnected
+                      ? "Connect Wallet to Mint"
+                      : ethBalance !== null && ethBalance < 0.001
+                        ? "Insufficient ETH"
+                        : "🪙 Mint Meme"}
+                </button>
+
+                {/* Mint status messages */}
+                {mintError && (
+                  <div className="text-red-500 text-sm mt-2">{mintError}</div>
+                )}
+                {mintSuccess && (
+                  <div className="text-green-600 text-sm mt-2">
+                    ✅ Mint successful! Check your wallet.
+                  </div>
+                )}
+
+                {/* Show ETH balance warning if low */}
+                {isConnected && ethBalance !== null && ethBalance < 0.001 && (
+                  <div className="text-orange-500 text-xs mt-1">
+                    Not enough ETH for gas. Please fund your wallet.
+                  </div>
+                )}
+              </>
+            ) : (
               <div className="flex flex-col items-center justify-center h-64 text-gray-500">
                 <p>Your generated meme will appear here</p>
               </div>
