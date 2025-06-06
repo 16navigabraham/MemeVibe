@@ -243,7 +243,6 @@ export default function CreateMeme() {
                       ? "Connect Wallet to Mint"
                       : "🪙 Mint Meme"}
                 </button>
-
                 {/* Mint status messages */}
                 {mintError && (
                   <div className="text-red-500 text-sm mt-2">{mintError}</div>
@@ -253,9 +252,8 @@ export default function CreateMeme() {
                     ✅ Mint successful! Check your wallet.
                   </div>
                 )}
-
                 {/* Show ETH balance warning if low */}
-                {isConnected && ethBalance !== null && ethBalance < 0.001 && (
+                {isConnected && ethBalance !== null && ethBalance < 0.00005 && (
                   <div className="text-red-500 text-xs mt-1">
                     Not enough ETH for gas. Please fund your wallet.
                   </div>

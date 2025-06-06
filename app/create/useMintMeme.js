@@ -36,7 +36,7 @@ export function useMintMeme() {
   }, [balanceData])
 
   // Can mint if connected and has enough ETH
-  const canMint = isConnected && ethBalance !== null && ethBalance >= 0.001
+  const canMint = isConnected && ethBalance !== null && ethBalance >= 0.00005
 
   // Connect wallet (prefer Farcaster, fallback to injected)
   const connectWallet = useCallback(async () => {
