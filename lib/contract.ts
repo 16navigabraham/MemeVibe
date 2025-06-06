@@ -1,5 +1,5 @@
 export const MEME_BATTLES_CONTRACT = {
-  address: '0x00a9f9CE02535B6d0eF74A873fABdcBA9a44661b',
+  address: '0xf09C6449C5Be2cf4Ad87b3ED3362eD282726421f',
   abi: [
 	{
 		"inputs": [],
