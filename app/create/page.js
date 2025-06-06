@@ -229,7 +229,7 @@ export default function CreateMeme() {
                   onClick={onMintClick}
                   disabled={
                     minting ||
-                    !isConnected && isConnecting ||
+                    (!isConnected && isConnecting) ||
                     !canMint ||
                     !generatedMeme
                   }
@@ -241,9 +241,7 @@ export default function CreateMeme() {
                     ? "Minting..."
                     : !isConnected
                       ? "Connect Wallet to Mint"
-                      : ethBalance !== null && ethBalance < 0.001
-                        ? "Insufficient ETH"
-                        : "🪙 Mint Meme"}
+                      : "🪙 Mint Meme"}
                 </button>
 
                 {/* Mint status messages */}
@@ -258,7 +256,7 @@ export default function CreateMeme() {
 
                 {/* Show ETH balance warning if low */}
                 {isConnected && ethBalance !== null && ethBalance < 0.001 && (
-                  <div className="text-orange-500 text-xs mt-1">
+                  <div className="text-red-500 text-xs mt-1">
                     Not enough ETH for gas. Please fund your wallet.
                   </div>
                 )}
