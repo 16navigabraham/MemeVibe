@@ -94,6 +94,26 @@ export default function CreateMeme() {
     handleCastMeme(memeUrl, textInputs);
   }
 
+  // Add this helper to upload metadata JSON and return the metadata URL
+  async function uploadMetadata({ name, description, image }) {
+    // Example: POST to your backend or UploadThing/IPFS API
+    // Replace this with your actual upload logic
+    const metadata = {
+      name,
+      description,
+      image,
+    };
+    // Example: using a placeholder API endpoint
+    const res = await fetch("/api/upload-metadata", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(metadata),
+    });
+    if (!res.ok) throw new Error("Failed to upload metadata");
+    const { url } = await res.json();
+    return url; // Should be a public URL to the metadata.json
+  }
+
   // Mint button handler
   const onMintClick = async () => {
     if (!isConnected) {
@@ -101,7 +121,22 @@ export default function CreateMeme() {
       return
     }
     if (!generatedMeme) return
-    await mintMeme(generatedMeme.url)
+
+    try {
+      // 1. Prepare metadata
+      const metadata = {
+        name: "Meme NFT",
+        description: "Generated with Meme Vibe",
+        image: generatedMeme.url,
+      };
+      // 2. Upload metadata JSON, get metadata URL
+      const metadataUrl = await uploadMetadata(metadata);
+      // 3. Mint with metadata URL
+      await mintMeme(metadataUrl);
+    } catch (err) {
+      // Optionally handle upload error
+      console.error(err);
+    }
   }
 
   return (

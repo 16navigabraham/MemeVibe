@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react"
 import { useAccount, useBalance, useConnect, useDisconnect, useWalletClient, usePublicClient } from "wagmi"
 
 // Replace with your deployed NFT contract address and ABI
-const NFT_CONTRACT_ADDRESS = "0xa950A816690Dd92ad39520DbF3d5d1308E06a908"
+const NFT_CONTRACT_ADDRESS = "0x47AE624EC4a5B9137b38E3134446B1aF245027A9"
 const NFT_CONTRACT_ABI = [
   {
     "inputs": [{ "internalType": "string", "name": "imageUrl", "type": "string" }],
