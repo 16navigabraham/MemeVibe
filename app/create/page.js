@@ -123,6 +123,9 @@ export default function CreateMeme() {
     if (!generatedMeme) return
 
     try {
+      setLoading(true)
+      setError(null)
+      console.log("Uploading metadata to Pinata...")
       // 1. Prepare metadata
       const metadata = {
         name: "Meme NFT",
@@ -131,11 +134,17 @@ export default function CreateMeme() {
       };
       // 2. Upload metadata JSON, get metadata URL
       const metadataUrl = await uploadMetadata(metadata);
+      console.log("Metadata uploaded:", metadataUrl)
+
       // 3. Mint with metadata URL
-      await mintMeme(metadataUrl);
+      console.log("Calling mintMeme with metadata URL...")
+      await mintMeme(metadataUrl)
+      console.log("Mint transaction sent. Await wallet confirmation.")
+      setLoading(false)
     } catch (err) {
-      // Optionally handle upload error
-      console.error(err);
+      setLoading(false)
+      setError(err?.message || "Minting failed")
+      console.error("Minting error:", err)
     }
   }
 
@@ -301,6 +310,14 @@ export default function CreateMeme() {
             )}
           </div>
         </div>
+
+        {/* Loading spinner/message for minting process */}
+        {loading && (
+          <div className="flex justify-center items-center mt-4">
+            <RefreshCw className="animate-spin mr-2 h-5 w-5" />
+            <span>Processing... Please check your wallet for a transaction popup.</span>
+          </div>
+        )}
       </div>
     </div>
   )
