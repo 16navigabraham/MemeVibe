@@ -17,23 +17,31 @@ export async function POST(req) {
       return NextResponse.json({ error: "Pinata API keys not set" }, { status: 500 })
     }
 
-    const res = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "pinata_api_key": PINATA_API_KEY,
-        "pinata_secret_api_key": PINATA_SECRET_API_KEY,
-      },
-      body: JSON.stringify({ pinataContent: metadata }),
-    })
+    let res
+    try {
+      res = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "pinata_api_key": PINATA_API_KEY,
+          "pinata_secret_api_key": PINATA_SECRET_API_KEY,
+        },
+        body: JSON.stringify({ pinataContent: metadata }),
+      })
+    } catch (networkErr) {
+      return NextResponse.json({ error: "Network error: " + networkErr.message }, { status: 502 })
+    }
 
     if (!res.ok) {
       let errorMsg = "Failed to upload metadata to Pinata"
       try {
         const errorData = await res.json()
         if (errorData && errorData.error) errorMsg = errorData.error
-      } catch {}
-      return NextResponse.json({ error: errorMsg }, { status: 500 })
+        else if (errorData && errorData.message) errorMsg = errorData.message
+      } catch {
+        // ignore JSON parse error
+      }
+      return NextResponse.json({ error: errorMsg, status: res.status }, { status: 500 })
     }
 
     const data = await res.json()
