@@ -51,7 +51,7 @@ export default function AdminPage() {
   // Existing login handler
   const handleLogin = (e) => {
     e.preventDefault()
-    if (password === "asJrA.61271895$") {
+    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
       setIsAuthenticated(true)
       setError("")
       const credentials = getApiCredentials()

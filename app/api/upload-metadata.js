@@ -10,8 +10,10 @@ export async function POST(req) {
 
     const metadata = { name, description, image }
 
-    const PINATA_API_KEY = process.env.pinata_api_key
-    const PINATA_SECRET_API_KEY = process.env.pinata_secret_api_key
+    const PINATA_API_KEY = process.env.PINATA_API_KEY
+    const PINATA_SECRET_API_KEY = process.env.PINATA_SECRET_API_KEY
+
+    console.log("Pinata API Key:", !!PINATA_API_KEY, "Secret Key:", !!PINATA_SECRET_API_KEY)
 
     if (!PINATA_API_KEY || !PINATA_SECRET_API_KEY) {
       return NextResponse.json({ error: "Pinata API keys not set" }, { status: 500 })
@@ -23,8 +25,8 @@ export async function POST(req) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "pinata_api_key": PINATA_API_KEY,
-          "pinata_secret_api_key": PINATA_SECRET_API_KEY,
+          pinata_api_key: PINATA_API_KEY,
+          pinata_secret_api_key: PINATA_SECRET_API_KEY,
         },
         body: JSON.stringify({ pinataContent: metadata }),
       })
