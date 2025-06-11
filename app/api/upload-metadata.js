@@ -13,26 +13,19 @@ export async function POST(req) {
     const PINATA_API_KEY = process.env.PINATA_API_KEY
     const PINATA_SECRET_API_KEY = process.env.PINATA_SECRET_API_KEY
 
-    console.log("Pinata API Key:", !!PINATA_API_KEY, "Secret Key:", !!PINATA_SECRET_API_KEY)
-
     if (!PINATA_API_KEY || !PINATA_SECRET_API_KEY) {
       return NextResponse.json({ error: "Pinata API keys not set" }, { status: 500 })
     }
 
-    let res
-    try {
-      res = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          pinata_api_key: PINATA_API_KEY,
-          pinata_secret_api_key: PINATA_SECRET_API_KEY,
-        },
-        body: JSON.stringify({ pinataContent: metadata }),
-      })
-    } catch (networkErr) {
-      return NextResponse.json({ error: "Network error: " + networkErr.message }, { status: 502 })
-    }
+    const res = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        pinata_api_key: PINATA_API_KEY,
+        pinata_secret_api_key: PINATA_SECRET_API_KEY,
+      },
+      body: JSON.stringify({ pinataContent: metadata }),
+    })
 
     if (!res.ok) {
       let errorMsg = "Failed to upload metadata to Pinata"
@@ -40,9 +33,7 @@ export async function POST(req) {
         const errorData = await res.json()
         if (errorData && errorData.error) errorMsg = errorData.error
         else if (errorData && errorData.message) errorMsg = errorData.message
-      } catch {
-        // ignore JSON parse error
-      }
+      } catch {}
       return NextResponse.json({ error: errorMsg, status: res.status }, { status: 500 })
     }
 
