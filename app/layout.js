@@ -1,6 +1,7 @@
 // app/layout.js
 import './globals.css';
 import { AuthProvider } from "@/contexts/FarcasterAuth";
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata = {
   metadataBase: new URL('https://meme-vibe.vercel.app'),
@@ -50,6 +51,7 @@ export default function RootLayout({ children }) {
       <body>
         <AuthProvider>
           {children}
+          <Analytics />
         </AuthProvider>
       </body>
     </html>
