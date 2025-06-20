@@ -1,5 +1,5 @@
 
-# MemeCaster😄🎨
+#Meme Vibe 😄🎨
 
 A fun warpcast frame that lets users browse meme templates and generate their own memes using the Imgflip API. Built with **React**, **Tailwind CSS**, **next.js** and supports **infinite scrolling** and **admin credential configuration**.
 
