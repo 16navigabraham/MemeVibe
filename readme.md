@@ -1,7 +1,7 @@
 
 #Meme Vibe 😄🎨
 
-A fun warpcast frame that lets users browse meme templates and generate their own memes using the Imgflip API. Built with **React**, **Tailwind CSS**, **next.js** and supports **infinite scrolling** and **admin credential configuration**.
+A fun farcaster miniapp that lets users browse meme templates and generate their own memes using the Imgflip API and mint meme image onchain. Built with **React**, **Tailwind CSS**, **next.js** and supports **infinite scrolling** and **admin credential configuration**.
 
 ---
 
